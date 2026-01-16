@@ -311,6 +311,35 @@ class MHistoria extends CI_Model
     return $consulta->result();
   }
 
+  // Nueva función para obtener citas por agenda específica
+  public function informacion_cita_por_agenda($idAgenda, $fecha)
+  {
+    $consulta = $this->db->query("
+
+      SELECT * FROM  cita AS c
+      
+      LEFT JOIN hc AS h ON h.cita_idCita = c.idCita
+      INNER JOIN usuario AS usu_age ON usu_age.idUsuario = c.usu_creo_cita
+      INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
+      INNER JOIN cups AS cup ON cup.idCups = cc.cups_idCups
+      INNER JOIN categoria_cups AS ccups ON ccups.id_cat_cups = cc.id_categoria_cups
+      INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
+      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
+      INNER JOIN agenda AS a ON c.agenda_idAgenda = a.idAgenda
+      INNER JOIN proceso AS p ON a.proceso_idProceso = p.idProceso
+      INNER JOIN usuario AS u ON a.usuario_idUsuario = u.idUsuario
+
+      WHERE
+
+      c.citEstado != 'CANCELADO' AND  
+      a.idAgenda = '" . $idAgenda . "' AND 
+      c.citFecha=  '" . $fecha . "'
+      ORDER BY c.citFechaInicio ASC
+      ");
+
+    return $consulta->result();
+  }
+
   public function getItinerarioAgendaUser($idUsuario, $fecha)
   {
     $consulta = $this->db->query("

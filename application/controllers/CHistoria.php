@@ -118,7 +118,8 @@ class CHistoria extends CI_Controller
 
         foreach ($consulta as $con) {
 
-            $cita = $this->MHistoria->informacion_cita1($con->proceso_idProceso, $idUsuario, $fecha);
+            // Filtrar citas por idAgenda específico para evitar duplicados
+            $cita = $this->MHistoria->informacion_cita_por_agenda($con->idAgenda, $fecha);
 
             echo "<table class='table table-bordered'>";
             echo "<thead>";
