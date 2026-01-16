@@ -2506,7 +2506,7 @@ class CHistoria extends CI_Controller
 
         $datos['idHistoria'] = $idHistoria;
 
-
+        $datos['examenes_pdf'] = $this->MHistoria->detalle_historia_pdf($idHistoria);
         $datos['diagnostico_historia'] = $this->MHistoria->detalle_historia_diagnostico($idHistoria);
 
         $this->load->view("CHistoria/VPsicologiaControl.php", $datos);
