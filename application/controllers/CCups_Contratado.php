@@ -166,21 +166,21 @@ class CCups_Contratado extends CI_Controller
             $paciente_categoria = 4;
         }
 
-        echo "<table class='table table-striped'>";
-
         if (sizeof($data) > 0) {
             foreach ($data as $d) {
-                echo "<tr><td>";
-                echo "<a onClick='elemento_selecionado(this);' id='" . $d->cupNombre .
-                    '&' . $d->cupCodigo . '&' . $d->id_cups_contrato . '&' . $d->cupTarifa . '&' . $d->id_categoria_cups . '&' . $paciente_categoria . "'>" . $d->cupNombre . "-" . $d->id_categoria_cups .
-                    "</a>";
-                echo "</td></tr>";
+                echo "<div class='elemento-lista' ";
+                echo "data-nombre='" . htmlspecialchars($d->cupNombre, ENT_QUOTES) . "' ";
+                echo "data-codigo='" . htmlspecialchars($d->cupCodigo, ENT_QUOTES) . "' ";
+                echo "data-cups-contratado='" . $d->id_cups_contrato . "' ";
+                echo "data-tarifa='" . $d->cupTarifa . "' ";
+                echo "data-categoria='" . $d->id_categoria_cups . "' ";
+                echo "data-paciente-categoria='" . $paciente_categoria . "'>";
+                echo htmlspecialchars($d->cupNombre) . " - " . htmlspecialchars($d->cupCodigo);
+                echo "</div>";
             }
         } else {
-            echo "<tr><td>No se encontro ningun cups asociado a esa letra.</td></tr>";
+            echo "<div class='text-danger'>No se encontró ningún CUPS asociado.</div>";
         }
-
-        echo "</table>";
     }
 
     function cups_codigo_detalle()
@@ -215,18 +215,20 @@ class CCups_Contratado extends CI_Controller
             $paciente_categoria = 4;
         }
 
-        echo "<table class='table table-striped'>";
-
         if (sizeof($data) > 0) {
             foreach ($data as $d) {
-                echo "<tr><td>";
-                echo "<a onClick='elemento_selecionado(this);' id='" . $d->cupNombre .
-                    '&' . $d->cupCodigo . '&' . $d->id_cups_contrato . '&' . $d->cupTarifa . '&' . $d->id_categoria_cups . '&' . $paciente_categoria . "'>" . $d->cupCodigo . "-" . $d->id_categoria_cups .
-                    "</a>";
-                echo "</td></tr>";
+                echo "<div class='elemento-lista' ";
+                echo "data-nombre='" . htmlspecialchars($d->cupNombre, ENT_QUOTES) . "' ";
+                echo "data-codigo='" . htmlspecialchars($d->cupCodigo, ENT_QUOTES) . "' ";
+                echo "data-cups-contratado='" . $d->id_cups_contrato . "' ";
+                echo "data-tarifa='" . $d->cupTarifa . "' ";
+                echo "data-categoria='" . $d->id_categoria_cups . "' ";
+                echo "data-paciente-categoria='" . $paciente_categoria . "'>";
+                echo htmlspecialchars($d->cupCodigo) . " - " . htmlspecialchars($d->cupNombre);
+                echo "</div>";
             }
         } else {
-            echo "<tr><td>No se encontro ningun codigo asociado a ese numero.</td></tr>";
+            echo "<div class='text-danger'>No se encontró ningún código asociado.</div>";
         }
 
         echo "</table>";

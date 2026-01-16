@@ -6,7 +6,7 @@
   display: table-cell;
 }
 
-#lista_nombre {
+#lista_nombre, #lista_codigo {
     border: 1px solid #ddd;
     background-color: #fff;
     position: absolute;
@@ -16,19 +16,29 @@
     width: 100%;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
+    margin-top: 2px;
 }
 
-#respuesta_nombre .elemento-lista {
+#respuesta_nombre .elemento-lista,
+#respuesta_codigo .elemento-lista {
     padding: 10px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-#respuesta_nombre .elemento-lista:hover {
-    background-color: #f5f5f5;
+#respuesta_nombre .elemento-lista:hover,
+#respuesta_codigo .elemento-lista:hover {
+    background-color: #e3f2fd;
 }
 
-#respuesta_nombre .text-danger {
+#respuesta_nombre .elemento-lista:last-child,
+#respuesta_codigo .elemento-lista:last-child {
+    border-bottom: none;
+}
+
+#respuesta_nombre .text-danger,
+#respuesta_codigo .text-danger {
     color: red;
     padding: 10px;
     font-size: 14px;
@@ -477,6 +487,7 @@
             $.ajax({
                 url: "<?php echo base_url() . 'index.php/CAgenda/agregar'; ?>",
                 type: 'POST',
+                dataType: 'json',
                 data: {
                     profesional: profesional,
                     area: area,
@@ -492,18 +503,29 @@
                 },
 
                 success: function(result) {
-
-                    //console.log(result);
-                    buscar_agenda();
-                    $('#sede').val("");
-                    $('#consultorio').val("");
-                    $('#inicio').val("");
-                    $('#fin').val("");
-                    $('#intervalo').val("");
-                    $('#modalidad').val("");
-                    $("#etiqueta").val("");
-                    $("#brigada").val("");
-                    $("#mens").html(result);
+                    if (result.status === 'error') {
+                        // Mostrar mensaje de error si ya existe la agenda
+                        html = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>" + result.message + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+                        $("#mens").html(html);
+                    } else {
+                        // Éxito - actualizar la vista
+                        buscar_agenda();
+                        $('#sede').val("");
+                        $('#consultorio').val("");
+                        $('#inicio').val("");
+                        $('#fin').val("");
+                        $('#intervalo').val("");
+                        $('#modalidad').val("");
+                        $("#etiqueta").val("");
+                        $("#brigada").val("");
+                        
+                        html = "<div class='alert alert-success alert-dismissible fade show' role='alert'>Agenda creada exitosamente<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+                        $("#mens").html(html);
+                    }
+                },
+                error: function() {
+                    html = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>Error al crear la agenda. Por favor intente nuevamente.<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+                    $("#mens").html(html);
                 }
             });
 
@@ -558,30 +580,32 @@
     ///Cups busqueda
 
     function buscar_cups_codigo() {
-
-        var textoBusqueda = $("input#codigo").val();
+        var textoBusqueda = $("input#codigo").val().trim();
         var documento = $("input#documento").val();
         var agenda = $("#idAgenda").val();
 
-        //  alert(agenda)
+        if (textoBusqueda !== "") {
+            $("#respuesta_codigo").html("<div>Cargando...</div>");
+            $('#lista_codigo').show();
 
-
-        if (textoBusqueda != "") {
             $.post("<?= base_url("index.php/CCups_Contratado/cups_codigo_detalle") ?>", {
                 valorBusqueda: textoBusqueda,
                 documento: documento,
                 agenda: agenda
-            }, function(data) {
-                // console.log(data);
-                $('#lista_codigo').show();
+            })
+            .done(function(data) {
                 $("#respuesta_codigo").html(data);
+                $('#lista_codigo').show();
+            })
+            .fail(function() {
+                $("#respuesta_codigo").html("<div class='text-danger'>Error al cargar resultados</div>");
             });
         } else {
             $("#cups_contratado").val("");
             $("#cup").val("");
             $('#lista_codigo').hide();
-        };
-    };
+        }
+    }
 
     function buscar_cups_nombre() {
     var textoBusqueda = $("input#cup").val().trim();
@@ -618,20 +642,36 @@
 }
 
 // Delegar el clic en elementos dinámicos para evitar problemas
-$(document).on("click", ".elemento-lista", function() {
-    var valorSeleccionado = $(this).data("valor");
-    var textoSeleccionado = $(this).text();
+$(document).on("click", ".elemento-lista", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    var elemento = $(this);
+    var nombreCup = elemento.data("nombre");
+    var codigoCup = elemento.data("codigo");
+    var cupsContratado = elemento.data("cups-contratado");
+    var tarifa = elemento.data("tarifa");
+    var categoria = elemento.data("categoria");
+    var pacienteCategoria = elemento.data("paciente-categoria");
 
-    // Asignar valores al input y ocultar el listado
-    $("input#cup").val(textoSeleccionado);
-    $("#codigo").val(valorSeleccionado);
+    // Asignar valores a los inputs
+    $("input#cup").val(nombreCup);
+    $("#codigo").val(codigoCup);
+    $("#cups_contratado").val(cupsContratado);
+    
+    // Ocultar los listados
     $('#lista_nombre').hide();
+    $('#lista_codigo').hide();
+    $('#mensaje').hide();
+    
+    console.log("CUPS seleccionado: " + nombreCup + " - " + codigoCup);
 });
 
 // Cerrar el listado si el usuario hace clic fuera
 $(document).on("click", function(e) {
-    if (!$(e.target).closest("#lista_nombre, #cup").length) {
+    if (!$(e.target).closest("#lista_nombre, #cup, #lista_codigo, #codigo").length) {
         $('#lista_nombre').hide();
+        $('#lista_codigo').hide();
     }
 });
 

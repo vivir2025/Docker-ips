@@ -184,6 +184,26 @@ class CAgenda extends CI_Controller
         $ageEtiqueta = $this->input->post('etiqueta');
         $brigada_idBrigada = $this->input->post('brigada');
 
+        // Verificar si hay traslape de horarios con agendas existentes
+        $traslape = $this->MAgenda->verificar_traslape_horario(
+            $usuario_idUsuario, 
+            $proceso_idProceso, 
+            $ageFecha, 
+            $ageHoraInicio, 
+            $ageHoraFin
+        );
+        
+        if (count($traslape) > 0) {
+            $agenda_existente = $traslape[0];
+            echo json_encode(array(
+                'status' => 'error',
+                'message' => 'Ya existe una agenda para este profesional y área en el horario ' . 
+                            $agenda_existente->ageHoraInicio . ' - ' . $agenda_existente->ageHoraFin . 
+                            '. Por favor seleccione un horario diferente.'
+            ));
+            return;
+        }
+
         $datos = array(
             'usuario_idUsuario' => $usuario_idUsuario,
             'proceso_idProceso' => $proceso_idProceso,
@@ -203,7 +223,11 @@ class CAgenda extends CI_Controller
 
         $data = $this->MAgenda->getAgendaByid($idAgenda);
 
-        json_encode($data);
+        echo json_encode(array(
+            'status' => 'success',
+            'message' => 'Agenda creada exitosamente',
+            'data' => $data
+        ));
     }
     public function historial($idPaciente)
     {

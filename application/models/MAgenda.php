@@ -11,6 +11,25 @@ class MAgenda extends CI_Model
     $this->load->database();
   }
 
+  public function verificar_traslape_horario($usuario_id, $proceso_id, $fecha, $hora_inicio, $hora_fin)
+  {
+    // Verifica si existe una agenda que se traslape con el horario propuesto
+    $consulta = $this->db->query("
+      SELECT idAgenda, ageHoraInicio, ageHoraFin
+      FROM agenda
+      WHERE usuario_idUsuario = ? 
+      AND proceso_idProceso = ? 
+      AND ageFecha = ?
+      AND (
+        (ageHoraInicio < ? AND ageHoraFin > ?) OR  -- La agenda existente contiene el nuevo horario
+        (ageHoraInicio >= ? AND ageHoraInicio < ?) OR  -- La agenda existente empieza dentro del nuevo horario
+        (ageHoraFin > ? AND ageHoraFin <= ?) -- La agenda existente termina dentro del nuevo horario
+      )
+    ", array($usuario_id, $proceso_id, $fecha, $hora_fin, $hora_inicio, $hora_inicio, $hora_fin, $hora_inicio, $hora_fin));
+    
+    return $consulta->result();
+  }
+
   public function guardar($datos)
   {
     $consulta = $this->db->insert('agenda', $datos);
