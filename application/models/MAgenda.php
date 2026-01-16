@@ -75,6 +75,19 @@ class MAgenda extends CI_Model
     ");
     return $consulta->result();
 }
+
+  // Cuenta las citas por agenda específica
+  public function contar_citas_por_agenda($idAgenda){
+    $consulta = $this->db->query("
+        SELECT c.citEstado, COUNT(*) AS total
+        FROM cita AS c
+        WHERE 
+            c.citEstado IN ('PROGRAMADO', 'FINALIZADO') AND
+            c.agenda_idAgenda = '" . $idAgenda . "'
+        GROUP BY c.citEstado
+    ");
+    return $consulta->result();
+}
 // Gets the appointment information for a specific user, process, and start date, excluding canceled appointments.
 
   public function informacion_cita($idProceso, $idUsuario, $fechaInit)

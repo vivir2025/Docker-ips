@@ -63,21 +63,8 @@ class CAgenda extends CI_Controller
     $idProceso = $this->input->post('proceso');
 
     $data = $this->MAgenda->getAgenda($idUsuario, $ageFecha, $idProceso);
-    $contador_citas = $this->MAgenda->contar_citas($idProceso, $idUsuario, $ageFecha);
 
-   // Initialize counters
-    $citas_programadas = 0;
-    $citas_finalizadas = 0;
-
-   // Count scheduled and completed appointments
-    foreach ($contador_citas as $cita) {
-        if ($cita->citEstado == 'PROGRAMADO') {
-            $citas_programadas = $cita->total;
-        } elseif ($cita->citEstado == 'FINALIZADO') {
-            $citas_finalizadas = $cita->total;
-        }
-    }
- // Display schedule in a table format
+    // Display schedule in a table format
     echo "<div class='container'>";
     echo "<h5></h5>";
     echo "<h5></h5>";
@@ -87,6 +74,22 @@ class CAgenda extends CI_Controller
         $ageHoraInicio = $data[0]->ageHoraInicio;
         $ageHoraInicio = $this->addMinutes($ageHoraInicio, 0);
         foreach ($data as $d) {
+            // Contar citas para esta agenda específica
+            $contador_citas = $this->MAgenda->contar_citas_por_agenda($d->idAgenda);
+            
+            // Initialize counters for this specific agenda
+            $citas_programadas = 0;
+            $citas_finalizadas = 0;
+            
+            // Count scheduled and completed appointments for this agenda
+            foreach ($contador_citas as $cita) {
+                if ($cita->citEstado == 'PROGRAMADO') {
+                    $citas_programadas = $cita->total;
+                } elseif ($cita->citEstado == 'FINALIZADO') {
+                    $citas_finalizadas = $cita->total;
+                }
+            }
+            
             echo "<tr>";
             echo "<tr><td colspan='7'><center>AGENDA DE : <b>" . $d->ageFecha . "</b></center></td></tr>";
             echo "<td>Profesional</td>";
@@ -107,6 +110,9 @@ class CAgenda extends CI_Controller
             
             echo "<td><a class='btn btn-danger' onclick=eliminar(\"{$d->idAgenda}\")>BORRAR</a> </td></tr>";
 
+            // Inicializar contador de citas para esta agenda
+            $numero_cita = 0;
+            
             while (strtotime($ageHoraInicio) < strtotime($d->ageHoraFin)) {
                 $hora_final = $this->addMinutes($ageHoraInicio, $d->ageIntervalo);
                 $statusHorario = $this->getStatusHorario($d->ageFecha, $ageHoraInicio, $hora_final, $d->idAgenda, $d->idUsuario, $d->idProceso);
@@ -119,7 +125,15 @@ class CAgenda extends CI_Controller
                 echo "</tr>";
 
                 echo "<tr>";
-                echo "<td colspan='3'>{$ageHoraInicio}/{$hora_final}</td>";
+                
+                // Mostrar número de cita si hay una cita agendada
+                if ($statusHorario > 0 && in_array($statusHorario[0]->citEstado, ['PROGRAMADO', 'FINALIZADO', 'FINALIZADO Y FACTURADO', 'FACTURADO'])) {
+                    $numero_cita++;
+                    echo "<td colspan='3'><strong style='color: #007bff; font-size: 18px;'>Cita #$numero_cita</strong><br>{$ageHoraInicio}/{$hora_final}</td>";
+                } else {
+                    echo "<td colspan='3'>{$ageHoraInicio}/{$hora_final}</td>";
+                }
+                
                 echo "<td colspan='3'>";
                 if ($statusHorario > 0 && $statusHorario[0]->citEstado == 'PROGRAMADO') {
                     echo "Paciente: " . $statusHorario[0]->pacNombre . " " . $statusHorario[0]->pacNombre2 . " " . $statusHorario[0]->pacApellido . " " . $statusHorario[0]->pacApellido2 . "<br>";
@@ -251,6 +265,27 @@ class CAgenda extends CI_Controller
         $this->MAgenda->eliminar($idAgenda);
 
         redirect(base_url("index.php/CAgenda"));
+    }
+
+    // Obtener la especialidad del profesional
+    public function obtener_especialidad_profesional()
+    {
+        $idUsuario = $this->input->post('idUsuario');
+        
+        // Obtener la especialidad del usuario directamente
+        $this->db->select('especialidad_idEspecialidad');
+        $this->db->from('usuario');
+        $this->db->where('idUsuario', $idUsuario);
+        $query = $this->db->get();
+        
+        if ($query->num_rows() > 0) {
+            $resultado = $query->row();
+            echo json_encode([
+                'especialidad_idEspecialidad' => $resultado->especialidad_idEspecialidad
+            ]);
+        } else {
+            echo json_encode(['especialidad_idEspecialidad' => null]);
+        }
     }
 
     public function paciente()
