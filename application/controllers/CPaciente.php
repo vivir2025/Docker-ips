@@ -55,7 +55,7 @@ class CPaciente extends CI_Controller
 
         $this->load->view("CPlantilla/VFooter");
     }
-    public function index_($tipo)
+    public function index_($tipo = null)
     {
         if ($tipo == 'agregado') {
             $data['tipmsg'] = 'success';
@@ -220,8 +220,8 @@ class CPaciente extends CI_Controller
             );
 
             $this->MPaciente->guardar($datos);
-            // Redireccionar con parámetro de éxito
-            redirect(base_url("index.php/CPaciente/index_?success=added"));
+            // Redireccionar con parámetro
+            redirect(base_url("index.php/CPaciente/index_/agregado"));
 
         }else{
 
@@ -352,7 +352,7 @@ class CPaciente extends CI_Controller
 
         $this->MPaciente->actualizardatos($datos, $idPaciente);
 
-        redirect(base_url("index.php/CPaciente/index_?success=updated"));
+        redirect(base_url("index.php/CPaciente/index_/actualizar"));
     }
 
 
@@ -365,6 +365,6 @@ class CPaciente extends CI_Controller
 
         $this->MPaciente->eliminar($estado, $idPaciente);
 
-        redirect(base_url("index.php/CPaciente/index_?success=deleted"));
+        redirect(base_url("index.php/CPaciente/index_/eliminado"));
     }
 }
