@@ -350,6 +350,11 @@
 
 <script type='text/javascript'>
 
+      // Limpiar modal cuando se cierra sin guardar
+      $('#exampleModal').on('hidden.bs.modal', function () {
+          limpiar_formulario_cita();
+      });
+
       function eliminar(id) {
           if (confirm('¿Usted desea eliminar la agenda? Recuerde que las citas asignadas al itinerario tambien seran eliminadas.')) {
               document.location.href = "<?php echo base_url() . 'index.php/CAgenda/eliminar/' ?>" + id;
@@ -578,16 +583,26 @@
 
     ///Cups busqueda
 
-    // Variable para controlar si estamos seleccionando un elemento
+    // Variables para controlar si estamos seleccionando un elemento
     var seleccionandoElemento = false;
     var timeoutBusqueda = null;
+    var ultimoValorCup = '';
+    var ultimoValorCodigo = '';
 
-    // Búsqueda por código con debounce
-    $("#codigo").on("input", function() {
-        if (seleccionandoElemento) return;
+    // Búsqueda por código con debounce y control de cambios
+    $("#codigo").on("input", function(e) {
+        if (seleccionandoElemento) {
+            e.stopImmediatePropagation();
+            return false;
+        }
+        
+        var valorInput = $(this).val().trim();
+        
+        // Si el valor no cambió, no hacer nada
+        if (valorInput === ultimoValorCodigo) return;
+        ultimoValorCodigo = valorInput;
         
         clearTimeout(timeoutBusqueda);
-        var valorInput = $(this).val().trim();
         
         if (valorInput === "") {
             $("#lista_codigo").hide();
@@ -595,16 +610,26 @@
         }
         
         timeoutBusqueda = setTimeout(function() {
-            buscar_cups_codigo();
-        }, 300);
+            if (!seleccionandoElemento) {
+                buscar_cups_codigo();
+            }
+        }, 400);
     });
 
-    // Búsqueda por nombre con debounce
-    $("#cup").on("input", function() {
-        if (seleccionandoElemento) return;
+    // Búsqueda por nombre con debounce y control de cambios
+    $("#cup").on("input", function(e) {
+        if (seleccionandoElemento) {
+            e.stopImmediatePropagation();
+            return false;
+        }
+        
+        var valorInput = $(this).val().trim();
+        
+        // Si el valor no cambió, no hacer nada
+        if (valorInput === ultimoValorCup) return;
+        ultimoValorCup = valorInput;
         
         clearTimeout(timeoutBusqueda);
-        var valorInput = $(this).val().trim();
         
         if (valorInput === "") {
             $("#lista_nombre").hide();
@@ -612,8 +637,16 @@
         }
         
         timeoutBusqueda = setTimeout(function() {
-            buscar_cups_nombre();
-        }, 300);
+            if (!seleccionandoElemento) {
+                buscar_cups_nombre();
+            }
+        }, 400);
+    });
+    
+    // Prevenir que se dispare el evento al hacer focus
+    $("#cup, #codigo").on("focus", function() {
+        ultimoValorCup = $("#cup").val();
+        ultimoValorCodigo = $("#codigo").val();
     });
 
     function buscar_cups_codigo() {
@@ -695,10 +728,17 @@
         var categoria = elemento.data("categoria");
         var pacienteCategoria = elemento.data("paciente-categoria");
 
+        // Limpiar timeouts pendientes
+        clearTimeout(timeoutBusqueda);
+        
         // Ocultar los listados PRIMERO
         $('#lista_nombre').hide();
         $('#lista_codigo').hide();
         $('#mensaje').hide();
+        
+        // Actualizar valores de referencia ANTES de asignar
+        ultimoValorCup = nombreCup;
+        ultimoValorCodigo = codigoCup;
         
         // Asignar valores a los inputs DESPUÉS de ocultar listas
         $("#cup").val(nombreCup);
@@ -710,7 +750,7 @@
         // Desactivar flag después de un delay más largo
         setTimeout(function() {
             seleccionandoElemento = false;
-        }, 500);
+        }, 700);
         
         return false;
     });
@@ -736,10 +776,17 @@
         paciente_categoria = datos_cups[5];
         categoria_cups = datos_cups[4];
 
+        // Limpiar timeouts
+        clearTimeout(timeoutBusqueda);
+        
         // Ocultar listas PRIMERO
         $('#lista_nombre').hide();
         $('#lista_codigo').hide();
         $('#mensaje').hide();
+        
+        // Actualizar valores de referencia ANTES de asignar
+        ultimoValorCup = datos_cups[0];
+        ultimoValorCodigo = datos_cups[1];
         
         // Asignar valores DESPUÉS
         $('#cup').val(datos_cups[0]);
@@ -749,7 +796,7 @@
         // Desactivar flag después de un delay
         setTimeout(function() {
             seleccionandoElemento = false;
-        }, 500);
+        }, 700);
 
         //  $('#mensaje').show();
         /*if(paciente_categoria == 5){
@@ -871,10 +918,17 @@
 
                     // Activar flag antes de limpiar campos
                     seleccionandoElemento = true;
+                    clearTimeout(timeoutBusqueda);
+                    
+                    // Actualizar valores de referencia
+                    ultimoValorCup = '';
+                    ultimoValorCodigo = '';
+                    
                     $("#codigo").val("");
                     $("#cup").val("");
                     $("#cups_contratado").val("");
-                    setTimeout(function() { seleccionandoElemento = false; }, 300);
+                    
+                    setTimeout(function() { seleccionandoElemento = false; }, 500);
 
                     var html = "<a class='btn btn-link' onclick = 'historial(" + data[0].idPaciente + ")'>HISTORIAL DE CITAS</a>";
 
@@ -901,8 +955,6 @@
     }
 
     // Limpiar formulario paciente
-
-
     function limpiar_formulario_paciente() {
         $("#id_paciente").val("");
         $("#documento").val("");
@@ -915,6 +967,41 @@
         $("#telefono").val("");
         $("#regimen").val("");
         $("#empresa").val("");
+    }
+
+    // Limpiar formulario completo de cita
+    function limpiar_formulario_cita() {
+        // Activar flag para evitar búsquedas mientras limpiamos
+        seleccionandoElemento = true;
+        
+        // Limpiar datos del paciente
+        limpiar_formulario_paciente();
+        
+        // Limpiar campos de CUPS
+        $("#codigo").val("");
+        $("#cup").val("");
+        $("#cups_contratado").val("");
+        
+        // Limpiar otros campos
+        $("#idAgenda").val("");
+        $("#fecha_inicial").val("");
+        $("#fecha_fin").val("");
+        $("#ageFecha").val("");
+        $("#patologia").val("");
+        $("#fecha_deseada").val("");
+        $("#nota").val("");
+        
+        // Ocultar listas y mensajes
+        $('#lista_nombre').hide();
+        $('#lista_codigo').hide();
+        $('#mensaje').hide();
+        $('#mens_cita').hide();
+        $('#historial_cita').hide();
+        
+        // Desactivar flag después de limpiar
+        setTimeout(function() {
+            seleccionandoElemento = false;
+        }, 500);
     }
 
 
