@@ -220,8 +220,8 @@ class CPaciente extends CI_Controller
             );
 
             $this->MPaciente->guardar($datos);
-        //// //redirecciono la pagina a la url por defecto
-            redirect(base_url("index.php/CPaciente/index_/agregado"));
+            // Redireccionar con parámetro de éxito
+            redirect(base_url("index.php/CPaciente/index_?success=added"));
 
         }else{
 
@@ -352,7 +352,7 @@ class CPaciente extends CI_Controller
 
         $this->MPaciente->actualizardatos($datos, $idPaciente);
 
-        redirect(base_url("index.php/CPaciente/index_/actualizar"));
+        redirect(base_url("index.php/CPaciente/index_?success=updated"));
     }
 
 
@@ -365,6 +365,6 @@ class CPaciente extends CI_Controller
 
         $this->MPaciente->eliminar($estado, $idPaciente);
 
-        redirect(base_url("index.php/CPaciente/index_/eliminado"));
+        redirect(base_url("index.php/CPaciente/index_?success=deleted"));
     }
 }

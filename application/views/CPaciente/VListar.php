@@ -1,3 +1,334 @@
+<style>
+/* Estilos profesionales para lista de pacientes */
+.pacientes-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.pacientes-header {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pacientes-header h4 {
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 700;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pacientes-header h4 i {
+    color: #3498db;
+}
+
+.btn-add-patient {
+    padding: 12px 24px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-add-patient:hover {
+    background: #229954;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Tabla profesional de pacientes */
+.pacientes-table-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.12);
+    border: 3px solid #e0e0e0;
+    overflow: hidden;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.pacientes-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.pacientes-table thead {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.pacientes-table thead th {
+    padding: 14px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    border: 2px solid #2874a6;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.pacientes-table tbody td {
+    padding: 12px;
+    vertical-align: middle;
+    font-size: 13px;
+    border: 2px solid #dee2e6;
+    border-top: none;
+    text-align: center;
+}
+
+.pacientes-table tbody tr {
+    transition: background-color 0.2s ease;
+    background: white;
+}
+
+.pacientes-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.patient-doc {
+    font-weight: 700;
+    color: #3498db;
+    font-size: 14px;
+}
+
+.patient-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.patient-age {
+    font-weight: 600;
+    color: #7f8c8d;
+    font-size: 16px;
+}
+
+.badge-afiliacion {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-estado {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-activo {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.badge-inactivo {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.btn-action-table {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-update {
+    background: #3498db;
+    color: white;
+}
+
+.btn-update:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+    color: white;
+}
+
+/* Modal mejorado */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 20px 25px;
+}
+
+.modal-title {
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-body label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+}
+
+.modal-body .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.modal-body .form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+}
+
+.modal-footer {
+    border-top: 2px solid #f0f0f0;
+    padding: 15px 25px;
+}
+
+/* Alerta personalizada */
+.custom-alert-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.custom-alert-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: zoomIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    to { transform: translate(-50%, -50%) scale(1); }
+}
+
+.custom-alert-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-alert-icon.success {
+    background: #e8f5e9;
+}
+
+.custom-alert-icon svg {
+    width: 50px;
+    height: 50px;
+    stroke: #27ae60;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: drawCheck 0.5s ease forwards;
+}
+
+@keyframes drawCheck {
+    to { stroke-dashoffset: 0; }
+}
+
+.custom-alert-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #27ae60;
+    margin-bottom: 10px;
+}
+
+.custom-alert-message {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.custom-alert-btn {
+    padding: 12px 30px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-alert-btn:hover {
+    background: #229954;
+    transform: scale(1.05);
+}
+</style>
+
 <!-- This is the view where I list patients where I can delete and update patient information -->
     <div class="modal fade bd-example-modal-lg" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -255,38 +586,40 @@
 
 </body>
 
-<!-- Tabla presentación de la información -->
-<div  class="container-fluid text-white">
-    <div class="row justify-content-center">
-        <div class="col-lg-10 ">
-            <!-- Button trigger modal -->
-            <h5 style="color:#FFFFFF">LISTA DE PACIENTES</h5>
-                <hr>
-                <a class="btn btn-primary" href="<?= base_url("index.php/CPaciente/formulario_paciente") ?>">Agregar Paciente</a><br><br>
-                <div class="table-responsive">
-                    <table id="example" class="table table-bordered bg-light" >
-                        <thead>
-                            <tr>
-                                <th>Documento</th>
-                                <th>Nombre</th>
-                                <th>Correo</th>
-                                <th>Edad</th>
-                                <th>Tipo Afiliacion</th>
-                                <th>Estado</th>
-                                <th>Actualizar</th>
-                                <th>Eliminar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+<!-- Vista profesional de lista de pacientes -->
+<div class="pacientes-container">
+    <div class="pacientes-header">
+        <h4><i class="fa fa-users"></i> Lista de Pacientes</h4>
+        <a class="btn-add-patient" href="<?= base_url("index.php/CPaciente/formulario_paciente") ?>">
+            <i class="fa fa-plus-circle"></i> Agregar Paciente
+        </a>
+    </div>
+
+    <div class="pacientes-table-card">
+        <div class="table-responsive">
+            <table id="example" class="pacientes-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Documento</th>
+                        <th style="width: 25%;">Nombre Completo</th>
+                        <th style="width: 18%;">Correo</th>
+                        <th style="width: 8%;">Edad</th>
+                        <th style="width: 15%;">Tipo Afiliación</th>
+                        <th style="width: 10%;">Estado</th>
+                        <th style="width: 7%;">Actualizar</th>
+                        <th style="width: 7%;">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
                             <?php
                                 foreach ($paciente as $pac) {
                                 ?>
 
                                 <tr>
-                                    <td><?= $pac->pacDocumento; ?></td>
-                                    <td><?= $pac->pacNombre . " " . $pac->pacNombre2 ." ". $pac->pacApellido ." ". $pac->pacApellido2 ; ?></td>
+                                    <td><span class="patient-doc"><?= $pac->pacDocumento; ?></span></td>
+                                    <td><span class="patient-name"><?= $pac->pacNombre . " " . $pac->pacNombre2 ." ". $pac->pacApellido ." ". $pac->pacApellido2 ; ?></span></td>
                                     <td><?= $pac->pacCorreo; ?></td>
-                                    <td> <?php
+                                    <td><span class="patient-age"><?php
                                             list($anio, $mes, $dia) = explode("-", $pac->pacFecNacimiento);
                                             $anio_dif = date("Y") - $anio;
                                             $mes_dif = date("m") - $mes;
@@ -294,43 +627,91 @@
 
                                             if ($dia_dif < 0 || $mes_dif < 0) {
                                                 $anio_dif--;
-                                                //return $anio_dif;
                                             }
 
                                             echo $anio_dif;
-
-                                            ?>
-
-                                    </td>
-                                    
-                                    <td>
-                                        <?= $pac->tipNombre; ?>
+                                            ?> años</span>
                                     </td>
                                     <td>
-                                        <?= $pac->tipo_novedad; ?>
+                                        <span class="badge-afiliacion"><?= $pac->tipNombre; ?></span>
                                     </td>
                                     <td>
-                                        <a class="btn btn-primary" href="<?= base_url("index.php/CPaciente/modRecuperar/$pac->idPaciente") ?>">Actualizar</a>
+                                        <span class="badge-estado <?= $pac->pacEstado == 'ACTIVO' ? 'badge-activo' : 'badge-inactivo' ?>">
+                                            <?= $pac->tipo_novedad; ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a class="btn-action-table btn-update" href="<?= base_url("index.php/CPaciente/modRecuperar/$pac->idPaciente") ?>">
+                                            <i class="fa fa-edit"></i> Editar
+                                        </a>
                                     </td>
                                     <td>
                                         <?php if ($pac->pacEstado == 'ACTIVO') { ?>
-
-                                            <a class="btn btn-danger" onclick="eliminar('<?php echo $pac->idPaciente; ?>')">Eliminar</a>
-
+                                            <button class="btn-action-table btn-delete" onclick="eliminar('<?php echo $pac->idPaciente; ?>')">
+                                                <i class="fa fa-trash"></i> Eliminar
+                                            </button>
+                                        <?php } else { ?>
+                                            <span style="color: #95a5a6;">--</span>
                                         <?php } ?>
                                     </td>
                                 </tr>
                             <?php
                                 }
                                 ?>
-                </div>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+<!-- Alerta personalizada -->
+<div id="customAlertPaciente" class="custom-alert-overlay">
+    <div class="custom-alert-box">
+        <div class="custom-alert-icon success">
+            <svg viewBox="0 0 52 52">
+                <polyline points="14 27 22 35 38 19"/>
+            </svg>
+        </div>
+        <div class="custom-alert-title">¡Éxito!</div>
+        <div class="custom-alert-message" id="customAlertMessagePaciente">Operación realizada correctamente</div>
+        <button class="custom-alert-btn" onclick="cerrarAlertaPaciente()">Aceptar</button>
+    </div>
+</div>
+
 <script type="text/javascript">
-    function eliminar(id) {
-        if (confirm('¿Desea eliminar el registro?')) {
-            document.location.href = "<?php echo base_url() . 'index.php/CPaciente/eliminar/' ?>" + id;
-            }
+    // Funciones para alerta personalizada
+    function mostrarAlertaPaciente(titulo, mensaje) {
+        $('#customAlertMessagePaciente').text(mensaje);
+        $('.custom-alert-title').text(titulo);
+        $('#customAlertPaciente').fadeIn(300);
     }
+
+    function cerrarAlertaPaciente() {
+        $('#customAlertPaciente').fadeOut(300);
+    }
+
+    // Función eliminar con confirmación personalizada
+    function eliminar(id) {
+        if (confirm('¿Está seguro que desea eliminar este paciente?')) {
+            document.location.href = "<?php echo base_url() . 'index.php/CPaciente/eliminar/' ?>" + id;
+        }
+    }
+
+    // Verificar si hay mensaje de éxito en la URL
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'added') {
+            setTimeout(function() {
+                mostrarAlertaPaciente('¡Éxito!', 'Paciente agregado correctamente');
+            }, 300);
+        } else if (urlParams.get('success') === 'updated') {
+            setTimeout(function() {
+                mostrarAlertaPaciente('¡Éxito!', 'Paciente actualizado correctamente');
+            }, 300);
+        } else if (urlParams.get('success') === 'deleted') {
+            setTimeout(function() {
+                mostrarAlertaPaciente('¡Éxito!', 'Paciente eliminado correctamente');
+            }, 300);
+        }
+    });
 </script>
