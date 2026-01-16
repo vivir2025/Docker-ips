@@ -403,6 +403,54 @@
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
 }
+
+/* Indicador de carga */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(44, 62, 80, 0.85);
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.loading-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 25px;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.loading-subtext {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </style>
 
 <div class="cronograma-container">
@@ -461,9 +509,27 @@
     </div>
 </div>
 
+<!-- Indicador de carga -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Abriendo Historia Clínica</div>
+        <div class="loading-subtext">Espere un momento por favor...</div>
+    </div>
+</div>
+
 <script type='text/javascript'>
     // Variables para la confirmación personalizada
     var confirmCallback = null;
+
+    // Funciones para mostrar/ocultar loading
+    function mostrarLoading() {
+        $('#loadingOverlay').fadeIn(300);
+    }
+
+    function ocultarLoading() {
+        $('#loadingOverlay').fadeOut(300);
+    }
 
     // Función para mostrar confirmación personalizada
     function mostrarConfirmPersonalizada(mensaje, callback) {
@@ -476,6 +542,10 @@
     function cerrarConfirmPersonalizada(resultado) {
         $('#customConfirm').fadeOut(300);
         if (confirmCallback) {
+            if (resultado) {
+                // Mostrar loading antes de ejecutar el callback
+                mostrarLoading();
+            }
             confirmCallback(resultado);
             confirmCallback = null;
         }
