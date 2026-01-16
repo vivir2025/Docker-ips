@@ -115,84 +115,121 @@ class CHistoria extends CI_Controller
 
         $consulta = $this->MHistoria->getItinerarioAgendaUser($idUsuario, $fecha);
 
+        if (sizeof($consulta) == 0) {
+            echo '<div class="empty-state">';
+            echo '<i class="far fa-calendar-times"></i>';
+            echo '<h5>No tienes agendas para hoy</h5>';
+            echo '<p>Disfruta tu día libre o revisa si hay agendas programadas para otros días</p>';
+            echo '</div>';
+            return;
+        }
 
         foreach ($consulta as $con) {
 
             // Filtrar citas por idAgenda específico para evitar duplicados
             $cita = $this->MHistoria->informacion_cita_por_agenda($con->idAgenda, $fecha);
 
-            echo "<table class='table table-bordered'>";
-            echo "<thead>";
-            echo "<tr>";
-            echo "<td colspan='2'>AGENDA DE: " . $con->ageFecha . "</td>";
-            echo "</tr>";
-            echo "<tr>";
-            echo "<td colspan='3'>PROFESIONAL: " . $con->usuNombre . " " . $con->usuApellido . "</td>";
-            echo "<td colspan='2'>PROCESO: " . $con->proNombre . "</td>";
-            echo "<td colspan='1'>SEDE: " . $con->sedNombre . "</td>";
-            echo "<td colspan='1'>CONSULTORIO: " . $con->ageConsultorio . "</td>";
-            echo "</tr>";
-
-            echo "<th>HORA</th>";
-            echo "<th>PACIENTE</th>";
-            /*echo "<th>EPS</th>";*/
-            echo "<th>CUPS</th>";
-            echo "<th>TIPO</th>";
-            echo "<th>TIPO DE CONSULTAO</th>";
-            echo "<th>PESO - PERIMETRO</th>";
-            echo "<th>ESTADO</th>";
-            /*echo "<th>FACTURADO</th>";*/
-            echo "<th>OPCION</th>";
-            echo "</thead>";
-            echo "<tbody>";
+            echo "<div class='agenda-card'>";
+            echo "<div class='agenda-info-header'>";
+            echo "<h5><i class='far fa-calendar-alt'></i> Agenda del " . date("d/m/Y", strtotime($con->ageFecha)) . "</h5>";
+            echo "<div class='agenda-details'>";
+            echo "<div class='agenda-detail-item'>";
+            echo "<i class='fas fa-user-md'></i>";
+            echo "<div>";
+            echo "<span class='label'>Profesional</span>";
+            echo "<span class='value'>" . $con->usuNombre . " " . $con->usuApellido . "</span>";
+            echo "</div>";
+            echo "</div>";
+            echo "<div class='agenda-detail-item'>";
+            echo "<i class='fas fa-stethoscope'></i>";
+            echo "<div>";
+            echo "<span class='label'>Proceso</span>";
+            echo "<span class='value'>" . $con->proNombre . "</span>";
+            echo "</div>";
+            echo "</div>";
+            echo "<div class='agenda-detail-item'>";
+            echo "<i class='fas fa-map-marker-alt'></i>";
+            echo "<div>";
+            echo "<span class='label'>Sede</span>";
+            echo "<span class='value'>" . $con->sedNombre . "</span>";
+            echo "</div>";
+            echo "</div>";
+            echo "<div class='agenda-detail-item'>";
+            echo "<i class='fas fa-door-open'></i>";
+            echo "<div>";
+            echo "<span class='label'>Consultorio</span>";
+            echo "<span class='value'>" . $con->ageConsultorio . "</span>";
+            echo "</div>";
+            echo "</div>";
+            echo "</div>";
+            echo "</div>";
 
             if (sizeof($cita) > 0) {
+                echo "<table class='agenda-table'>";
+                echo "<thead>";
+                echo "<tr>";
+                echo "<th><i class='far fa-clock'></i> Hora</th>";
+                echo "<th><i class='fas fa-user'></i> Paciente</th>";
+                echo "<th><i class='fas fa-hospital'></i> EPS</th>";
+                echo "<th><i class='fas fa-notes-medical'></i> CUPS</th>";
+                echo "<th><i class='fas fa-tag'></i> Tipo</th>";
+                echo "<th><i class='fas fa-clipboard'></i> Nota</th>";
+                echo "<th><i class='fas fa-weight'></i> Peso/Perímetro</th>";
+                echo "<th><i class='fas fa-info-circle'></i> Estado</th>";
+                echo "<th><i class='fas fa-cog'></i> Acción</th>";
+                echo "</tr>";
+                echo "</thead>";
+                echo "<tbody>";
+
                 foreach ($cita as $c) {
-
-                    if ($c->citEstado == 'PROGRAMADO' || $c->citEstado == 'FACTURADO') {
-
-                        echo "<tr onclick='verValoracion($c->idCita, $c->id_cat_cups, $c->proceso_idProceso, $c->pacDocumento)'>";
-                    } else {
-                        echo "<tr style='background-color:#D6FBEE;'>";
-                    }
-                    echo "<td>" . $c->citFechaInicio . "</td>";
-                    echo "<td>" . $c->pacDocumento . " - " . $c->pacNombre . " " . $c->pacNombre2 . " " . $c->pacApellido . " " . $c->pacApellido2 . "</td>";
+                    $rowClass = ($c->citEstado == 'FINALIZADO' || $c->citEstado == 'FINALIZADO Y FACTURADO') ? 'finalizado' : '';
+                    $clickable = ($c->citEstado == 'PROGRAMADO' || $c->citEstado == 'FACTURADO') ? "onclick='verValoracion($c->idCita, $c->id_cat_cups, $c->proceso_idProceso, $c->pacDocumento)' style='cursor: pointer;'" : '';
+                    
+                    echo "<tr class='$rowClass' $clickable>";
+                    echo "<td><span class='cita-hora'>" . date("h:i A", strtotime($c->citFechaInicio)) . "</span></td>";
+                    echo "<td>";
+                    echo "<div class='cita-paciente'>" . $c->pacNombre . " " . $c->pacNombre2 . " " . $c->pacApellido . " " . $c->pacApellido2 . "</div>";
+                    echo "<div class='cita-documento'>CC: " . $c->pacDocumento . "</div>";
+                    echo "</td>";
                     echo "<td>" . $c->empNombre . "</td>";
                     echo "<td>" . $c->cupNombre . "</td>";
                     echo "<td>" . $c->catNombre . "</td>";
                     echo "<td>" . $c->citNota . "</td>";
-                    echo "<td>" . $c->usuNombre .  " " . $c->usuApellido . "</td>";
-                    echo "<td>" . $c->citEstado . "</td>";
+                    echo "<td><small>" . $c->usuNombre . " " . $c->usuApellido . "</small></td>";
                     echo "<td>";
                     if ($c->citEstado == 'PROGRAMADO') {
-                        echo 'No--';
-                    } elseif ($c->citEstado == 'FACTURADO') {
-                        echo 'Si--';
-                    } elseif ($c->citEstado == 'FINALIZADO Y FACTURADO') {
-                        echo 'Si--';
+                        echo "<span class='badge-estado badge-programado'><i class='far fa-calendar-check'></i> Programado</span>";
                     } elseif ($c->citEstado == 'FINALIZADO') {
-                        echo 'No--';
+                        echo "<span class='badge-estado badge-finalizado'><i class='fas fa-check-circle'></i> Finalizado</span>";
+                    } elseif ($c->citEstado == 'FACTURADO') {
+                        echo "<span class='badge-estado badge-facturado'><i class='fas fa-file-invoice-dollar'></i> Facturado</span>";
+                    } elseif ($c->citEstado == 'FINALIZADO Y FACTURADO') {
+                        echo "<span class='badge-estado badge-finalizado'><i class='fas fa-check-double'></i> Finalizado y Facturado</span>";
                     }
                     echo "</td>";
                     echo "<td>";
-                    if ($c->citEstado == 'PROGRAMADO') {
-                        echo 'N/A';
-                    } elseif ($c->citEstado == 'FACTURADO') {
-                        echo 'N/A';
-                    } elseif ($c->citEstado == 'FINALIZADO Y FACTURADO') {
-                        echo "<a class='btn btn-primary btn-sm' href='" . base_url('index.php/CHistoria/adicional/' . $c->id_hc) . "'>+Adicional</a>";
-                    } elseif ($c->citEstado == 'FINALIZADO') {
-                        echo "<a class='btn btn-primary btn-sm'
-                        href='" . base_url('index.php/CHistoria/adicional/' . $c->id_hc) . "'>+Adicional</a>";
+                    if ($c->citEstado == 'PROGRAMADO' || $c->citEstado == 'FACTURADO') {
+                        echo "<button class='btn-iniciar-cita' onclick='verValoracion($c->idCita, $c->id_cat_cups, $c->proceso_idProceso, $c->pacDocumento)'>";
+                        echo "<i class='fas fa-play'></i> Iniciar";
+                        echo "</button>";
+                    } elseif ($c->citEstado == 'FINALIZADO' || $c->citEstado == 'FINALIZADO Y FACTURADO') {
+                        echo "<a class='btn-adicional' href='" . base_url('index.php/CHistoria/adicional/' . $c->id_hc) . "'>";
+                        echo "<i class='fas fa-plus'></i> Adicional";
+                        echo "</a>";
                     }
-                    // onclick='nota_adicional(\"{$c->id_hc}\")'
                     echo "</td>";
                     echo "</tr>";
                 }
                 echo "</tbody>";
                 echo "</table>";
-                echo "</br></br>";
+            } else {
+                echo "<div class='empty-state'>";
+                echo "<i class='far fa-calendar-times'></i>";
+                echo "<h5>No hay citas agendadas</h5>";
+                echo "<p>Esta agenda no tiene citas programadas para hoy</p>";
+                echo "</div>";
             }
+            echo "</div>";
         }
     }
 

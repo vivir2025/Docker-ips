@@ -1,15 +1,307 @@
 
 <!-- This view lists the appointments assigned to the health professional to initialize them ... -->
-<div class="container">
 
-    <h5 style="color: white;">AGENDA <?php echo date("Y-m-d  h:i:s a", time()); ?></h5>
-    <hr>
+<style>
+/* Skeleton Loader Styles */
+.skeleton-loader {
+    display: block;
+    margin: 20px 0;
+}
 
-    
-    <div class="form-row bg-light">
-        <div id="mens_cita"></div>
+.skeleton-table {
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.skeleton-header {
+    height: 60px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-row {
+    height: 50px;
+    background: linear-gradient(90deg, #f8f8f8 25%, #ececec 50%, #f8f8f8 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Estilos profesionales para el cronograma */
+.cronograma-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.cronograma-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.cronograma-header h4 {
+    color: white;
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cronograma-header h4 i {
+    font-size: 28px;
+}
+
+.cronograma-header .fecha-actual {
+    color: rgba(255,255,255,0.9);
+    font-size: 14px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.agenda-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.agenda-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.agenda-info-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    color: white;
+}
+
+.agenda-info-header h5 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.agenda-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.agenda-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.1);
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.agenda-detail-item i {
+    font-size: 18px;
+}
+
+.agenda-detail-item .label {
+    font-size: 11px;
+    opacity: 0.8;
+    display: block;
+}
+
+.agenda-detail-item .value {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.agenda-table {
+    width: 100%;
+    margin: 0;
+}
+
+.agenda-table thead {
+    background: #f8f9fa;
+}
+
+.agenda-table thead th {
+    padding: 15px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.agenda-table tbody td {
+    padding: 15px 12px;
+    vertical-align: middle;
+    font-size: 14px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.agenda-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.agenda-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.agenda-table tbody tr.finalizado {
+    background-color: #d4edda;
+}
+
+.cita-hora {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 15px;
+}
+
+.cita-paciente {
+    font-weight: 500;
+}
+
+.cita-documento {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.badge-estado {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-programado {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-finalizado {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.badge-facturado {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.btn-iniciar-cita {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-iniciar-cita:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-adicional {
+    background: #28a745;
+    border: none;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-adicional:hover {
+    background: #218838;
+    color: white;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 64px;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state h5 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #6c757d;
+    font-size: 14px;
+}
+</style>
+
+<div class="cronograma-container">
+    <div class="cronograma-header">
+        <h4>
+            <i class="fas fa-calendar-check"></i>
+            Mi Cronograma de Hoy
+        </h4>
+        <div class="fecha-actual">
+            <i class="far fa-clock"></i>
+            <span><?php echo date("l, d \d\e F \d\e Y - h:i A", time()); ?></span>
+        </div>
     </div>
+
+    <!-- Skeleton Loader -->
+    <div id="skeleton-loader" class="skeleton-loader">
+        <div class="skeleton-table">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+        </div>
+        <div class="skeleton-table">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+        </div>
+    </div>
+
+    <!-- Contenedor de datos reales -->
+    <div id="mens_cita" style="display: none;"></div>
 </div>
+
 <script type='text/javascript'>
     /*function eliminar(id_his_med) {
         if (confirm('¿Desea eliminar el medicamento?')) {
@@ -152,14 +444,22 @@
 
     });
 
+    // Primera carga con skeleton loader
     $.ajax({
         url: "<?php echo base_url() . 'index.php/CHistoria/agenda_cita'; ?>",
         type: 'POST',
 
         success: function(result) {
-
-            //console.log(result);
-            $("#mens_cita").html(result);
+            // Ocultar skeleton loader
+            $("#skeleton-loader").fadeOut(300, function() {
+                // Mostrar datos reales
+                $("#mens_cita").html(result).fadeIn(400);
+            });
+        },
+        error: function() {
+            $("#skeleton-loader").fadeOut(300, function() {
+                $("#mens_cita").html('<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h5>Error al cargar las citas</h5><p>Por favor, recarga la página</p></div>').fadeIn(400);
+            });
         }
     });
 
