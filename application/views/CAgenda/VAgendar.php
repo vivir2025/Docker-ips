@@ -44,6 +44,106 @@
     font-size: 14px;
 }
 
+/* Alerta personalizada bonita */
+.custom-alert-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.custom-alert-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    min-width: 350px;
+    animation: zoomIn 0.3s ease forwards;
+}
+
+.custom-alert-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: #28a745;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleUp 0.5s ease;
+}
+
+.custom-alert-icon svg {
+    width: 50px;
+    height: 50px;
+    stroke: white;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    animation: drawCheck 0.5s ease 0.3s forwards;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+}
+
+.custom-alert-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.custom-alert-message {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.custom-alert-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.custom-alert-btn:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    to { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes scaleUp {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes drawCheck {
+    to { stroke-dashoffset: 0; }
+}
 
     
 </style>
@@ -346,9 +446,53 @@
     <!--Fin Modal Agregar -->
 
 
-</div> 
+</div>
+
+<!-- Alerta personalizada -->
+<div id="customAlert" class="custom-alert-overlay">
+    <div class="custom-alert-box">
+        <div class="custom-alert-icon">
+            <svg viewBox="0 0 52 52">
+                <polyline points="14 27 22 35 38 19"/>
+            </svg>
+        </div>
+        <div class="custom-alert-title">¡Éxito!</div>
+        <div class="custom-alert-message" id="customAlertMessage">Paciente agendado correctamente</div>
+        <button class="custom-alert-btn" onclick="cerrarAlertaPersonalizada()">Aceptar</button>
+    </div>
+</div>
 
 <script type='text/javascript'>
+
+      // Funciones para alerta personalizada
+      function mostrarAlertaPersonalizada(titulo, mensaje, tipo) {
+          $('#customAlertMessage').text(mensaje);
+          $('.custom-alert-title').text(titulo);
+          
+          // Cambiar color según tipo
+          var color = tipo === 'success' ? '#28a745' : tipo === 'error' ? '#dc3545' : '#ffc107';
+          $('.custom-alert-icon').css('background', color);
+          $('.custom-alert-btn').css('background', color);
+          
+          $('#customAlert').fadeIn(300);
+      }
+      
+      function cerrarAlertaPersonalizada() {
+          $('#customAlert').fadeOut(300);
+      }
+      
+      // Cerrar con ESC o click fuera
+      $(document).on('keydown', function(e) {
+          if (e.key === 'Escape' && $('#customAlert').is(':visible')) {
+              cerrarAlertaPersonalizada();
+          }
+      });
+      
+      $('#customAlert').on('click', function(e) {
+          if (e.target.id === 'customAlert') {
+              cerrarAlertaPersonalizada();
+          }
+      });
 
       // Limpiar modal cuando se cierra sin guardar
       $('#exampleModal').on('hidden.bs.modal', function () {
@@ -449,10 +593,10 @@
                 // Cerrar el modal
                 $('#exampleModal').modal('hide');
 
-                // Asegurarse de que el evento se registre una sola vez
-                $('#exampleModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
-                    alert("Paciente agendado");
-                });
+                // Mostrar alerta bonita
+                setTimeout(function() {
+                    mostrarAlertaPersonalizada('¡Éxito!', 'Paciente agendado correctamente', 'success');
+                }, 300);
             },
         });
     } else {
