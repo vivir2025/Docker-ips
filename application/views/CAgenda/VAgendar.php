@@ -499,34 +499,6 @@
           limpiar_formulario_cita();
       });
 
-      // Autocompletar especialidad cuando se selecciona un profesional
-      $("#profesional").change(function() {
-          var idUsuario = $(this).val();
-          
-          if (idUsuario !== "") {
-              $.ajax({
-                  url: "<?php echo base_url() . 'index.php/CAgenda/obtener_especialidad_profesional'; ?>",
-                  type: 'POST',
-                  dataType: 'json',
-                  data: {
-                      idUsuario: idUsuario
-                  },
-                  success: function(response) {
-                      if (response.especialidad_idEspecialidad) {
-                          // Autoseleccionar la especialidad del profesional
-                          $("#area").val(response.especialidad_idEspecialidad);
-                      }
-                  },
-                  error: function() {
-                      console.log("Error al obtener la especialidad del profesional");
-                  }
-              });
-          } else {
-              // Si no hay profesional seleccionado, limpiar el área
-              $("#area").val("");
-          }
-      });
-
       function eliminar(id) {
           if (confirm('¿Usted desea eliminar la agenda? Recuerde que las citas asignadas al itinerario tambien seran eliminadas.')) {
               document.location.href = "<?php echo base_url() . 'index.php/CAgenda/eliminar/' ?>" + id;

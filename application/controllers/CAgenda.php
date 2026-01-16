@@ -267,27 +267,6 @@ class CAgenda extends CI_Controller
         redirect(base_url("index.php/CAgenda"));
     }
 
-    // Obtener la especialidad del profesional
-    public function obtener_especialidad_profesional()
-    {
-        $idUsuario = $this->input->post('idUsuario');
-        
-        // Obtener la especialidad del usuario directamente
-        $this->db->select('especialidad_idEspecialidad');
-        $this->db->from('usuario');
-        $this->db->where('idUsuario', $idUsuario);
-        $query = $this->db->get();
-        
-        if ($query->num_rows() > 0) {
-            $resultado = $query->row();
-            echo json_encode([
-                'especialidad_idEspecialidad' => $resultado->especialidad_idEspecialidad
-            ]);
-        } else {
-            echo json_encode(['especialidad_idEspecialidad' => null]);
-        }
-    }
-
     public function paciente()
     {
 
