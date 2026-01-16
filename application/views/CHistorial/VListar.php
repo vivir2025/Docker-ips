@@ -348,6 +348,55 @@
     color: #6c757d;
     font-size: 14px;
 }
+
+/* Overlay de carga para abrir historia */
+.loading-overlay-historial {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-content-historial {
+    background: white;
+    padding: 40px 50px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.loading-spinner-historial {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin-historial 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin-historial {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text-historial {
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.loading-subtext-historial {
+    color: #7f8c8d;
+    font-size: 14px;
+}
 </style>
 
 <!-- Vista mejorada de historial clínico -->
@@ -384,9 +433,27 @@
 
     <!-- Contenedor de resultados -->
     <div id="resultado" style="display: none;"></div>
-</div> 
+</div>
+
+<!-- Overlay de carga para abrir historia -->
+<div id="loadingOverlayHistorial" class="loading-overlay-historial">
+    <div class="loading-content-historial">
+        <div class="loading-spinner-historial"></div>
+        <div class="loading-text-historial">Abriendo historia clínica</div>
+        <div class="loading-subtext-historial">Espere un momento, por favor...</div>
+    </div>
+</div>
 
 <script type='text/javascript'>
+    // Funciones para el overlay de carga
+    function mostrarLoadingHistorial() {
+        $('#loadingOverlayHistorial').css('display', 'flex');
+    }
+
+    function ocultarLoadingHistorial() {
+        $('#loadingOverlayHistorial').css('display', 'none');
+    }
+
     function buscar_paciente() {
         var documento = $('#documento').val();
 
@@ -410,10 +477,13 @@
     }
 
     function verHistoriaCompleta(id_hc,id_proceso) {
-
-        document.location.href = "<?php echo base_url() . 'index.php/CHistoria/imprimir_historia_clinica_historial/' ?>" + id_hc;
-
-
+        // Mostrar overlay de carga
+        mostrarLoadingHistorial();
+        
+        // Pequeño delay para que se vea el overlay antes de redirigir
+        setTimeout(function() {
+            document.location.href = "<?php echo base_url() . 'index.php/CHistoria/imprimir_historia_clinica_historial/' ?>" + id_hc;
+        }, 300);
     }
     function verParaclinicos(id_hc,id_cat_cups, id_proceso) {
 
