@@ -45,60 +45,75 @@
 }
 
 .cronograma-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: white;
     padding: 25px;
     border-radius: 12px;
     margin-bottom: 30px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 2px solid #e0e0e0;
 }
 
 .cronograma-header h4 {
-    color: white;
+    color: #2c3e50;
     margin: 0;
-    font-weight: 600;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 12px;
+    font-size: 24px;
 }
 
 .cronograma-header h4 i {
     font-size: 28px;
+    color: #3498db;
 }
 
 .cronograma-header .fecha-actual {
-    color: rgba(255,255,255,0.9);
-    font-size: 14px;
-    margin-top: 8px;
+    color: #546e7a;
+    font-size: 15px;
+    margin-top: 10px;
     display: flex;
     align-items: center;
     gap: 8px;
+    font-weight: 500;
+}
+
+.cronograma-header .fecha-actual i {
+    color: #3498db;
 }
 
 .agenda-card {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 15px rgba(0,0,0,0.12);
+    border: 2px solid #e0e0e0;
     margin-bottom: 25px;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .agenda-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.18);
+    border-color: #3498db;
 }
 
 .agenda-info-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f8f9fa;
     padding: 20px;
-    color: white;
+    border-bottom: 3px solid #3498db;
 }
 
 .agenda-info-header h5 {
     margin: 0;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.agenda-info-header h5 i {
+    color: #3498db;
 }
 
 .agenda-details {
@@ -111,25 +126,31 @@
 .agenda-detail-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(255,255,255,0.1);
-    padding: 10px 15px;
+    gap: 12px;
+    background: white;
+    padding: 12px 15px;
     border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 .agenda-detail-item i {
-    font-size: 18px;
+    font-size: 20px;
+    color: #3498db;
 }
 
 .agenda-detail-item .label {
     font-size: 11px;
-    opacity: 0.8;
+    color: #7f8c8d;
     display: block;
+    text-transform: uppercase;
+    font-weight: 600;
 }
 
 .agenda-detail-item .value {
     font-size: 14px;
     font-weight: 600;
+    color: #2c3e50;
 }
 
 .agenda-table {
@@ -209,20 +230,22 @@
 }
 
 .btn-iniciar-cita {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #3498db;
     border: none;
     color: white;
-    padding: 8px 16px;
+    padding: 8px 18px;
     border-radius: 6px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
 }
 
 .btn-iniciar-cita:hover {
+    background: #2980b9;
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
 }
 
 .btn-adicional {
@@ -276,7 +299,10 @@
         </h4>
         <div class="fecha-actual">
             <i class="far fa-clock"></i>
-            <span><?php echo date("l, d \d\e F \d\e Y - h:i A", time()); ?></span>
+            <span><?php 
+                setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain');
+                echo strftime("%A, %d de %B de %Y - %I:%M %p", time()); 
+            ?></span>
         </div>
     </div>
 

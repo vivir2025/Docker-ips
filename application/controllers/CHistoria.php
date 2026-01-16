@@ -173,8 +173,7 @@ class CHistoria extends CI_Controller
                 echo "<th><i class='fas fa-hospital'></i> EPS</th>";
                 echo "<th><i class='fas fa-notes-medical'></i> CUPS</th>";
                 echo "<th><i class='fas fa-tag'></i> Tipo</th>";
-                echo "<th><i class='fas fa-clipboard'></i> Nota</th>";
-                echo "<th><i class='fas fa-weight'></i> Peso/Perímetro</th>";
+                echo "<th><i class='fas fa-clipboard'></i> Tipo de Consulta</th>";
                 echo "<th><i class='fas fa-info-circle'></i> Estado</th>";
                 echo "<th><i class='fas fa-cog'></i> Acción</th>";
                 echo "</tr>";
@@ -195,7 +194,6 @@ class CHistoria extends CI_Controller
                     echo "<td>" . $c->cupNombre . "</td>";
                     echo "<td>" . $c->catNombre . "</td>";
                     echo "<td>" . $c->citNota . "</td>";
-                    echo "<td><small>" . $c->usuNombre . " " . $c->usuApellido . "</small></td>";
                     echo "<td>";
                     if ($c->citEstado == 'PROGRAMADO') {
                         echo "<span class='badge-estado badge-programado'><i class='far fa-calendar-check'></i> Programado</span>";
