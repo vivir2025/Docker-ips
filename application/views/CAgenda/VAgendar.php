@@ -280,6 +280,114 @@
     font-size: 14px;
 }
 
+/* Estilos mejorados para formularios */
+.agenda-header-section label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.agenda-header-section .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.agenda-header-section .form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+}
+
+.agenda-header-section select.form-control {
+    cursor: pointer;
+}
+
+/* Estilos para modales profesionales */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+    padding: 20px 25px;
+}
+
+.modal-header .close {
+    color: white;
+    opacity: 1;
+    text-shadow: none;
+    font-size: 28px;
+}
+
+.modal-header .close:hover {
+    opacity: 0.8;
+}
+
+.modal-title {
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-body label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.modal-body .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.modal-body .form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+}
+
+.modal-footer {
+    border-top: 2px solid #f0f0f0;
+    padding: 15px 25px;
+}
+
+.modal-footer .btn {
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.modal-footer .btn-primary {
+    background: #3498db;
+    border: none;
+}
+
+.modal-footer .btn-primary:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+}
+
+.modal-footer .btn-secondary {
+    background: #95a5a6;
+    border: none;
+}
+
+.modal-footer .btn-secondary:hover {
+    background: #7f8c8d;
+}
+
 .input_txt {
   font-size: 61%;
   width: 150px;
@@ -428,15 +536,11 @@
 
     
 </style>
-<div  class="container-fluid">
-    <div class="mx-auto" style="width: 1300px;">
-    <hr>
-    <h4 style="color: white;">Crear Agenda</h4>
- 
-    <form>
-        <!--method="post" action="<?php echo site_url('CAgenda/agregar'); ?>" -->
-       
-        <div  class="bg-light" >
+<div class="agenda-container">
+    <!-- Sección de consulta de agenda -->
+    <div class="agenda-header-section">
+        <h4><i class="fa fa-search"></i> Consultar Agenda</h4>
+        <form>
         <div class="form-row">
             <div class="form-group col-md-2">
                 <label>Profesional</label>
@@ -481,12 +585,18 @@
                 <input class="form-control" name="fecha" id="fecha" type="date" required="">
             </div>
             <div class="form-group col-md-2">
-                <label>---</label>
-                <a class="form-control btn btn-primary" onclick="buscar_agenda()">Consultar</a>
+                <label style="opacity: 0;">---</label>
+                <button type="button" class="form-control btn-agenda-action btn-agenda-primary" onclick="buscar_agenda()" style="height: 38px;"><i class="fa fa-search"></i> Consultar</button>
             </div>
         </div>
+        </form>
+    </div>
 
-        <div class="form-row" id="crear_agenda" style="display: none;">
+    <!-- Sección de crear agenda -->
+    <div class="agenda-header-section" id="crear_agenda" style="display: none;">
+        <h4><i class="fa fa-calendar-plus"></i> Crear Nueva Agenda</h4>
+        <form>
+        <div class="form-row">
             <div class="form-group col-md-1">
                 <label>Hora Inicio</label>
                 <input class="input_txt form-control" name="inicio" type="time" id="inicio">
@@ -543,11 +653,12 @@
                 </select>
             </div>
             <div class="form-group col-md-2">
-                <label>---</label><br>
-                <a class="btn btn-primary btn-block" id="add_agenda">Crear agenda</a>
+                <label style="opacity: 0;">---</label>
+                <button type="button" class="btn-agenda-action btn-agenda-success btn-block" id="add_agenda" style="height: 38px;"><i class="fa fa-plus-circle"></i> Crear Agenda</button>
             </div>
         </div>
-    </form>
+        </form>
+    </div>
 
     <br>
     <div id="mens"></div>
@@ -578,14 +689,13 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="myLargeModalLabel">Formulario Cita</h5>
+                    <h5 class="modal-title" id="myLargeModalLabel"><i class="fa fa-calendar-plus"></i> Agendar Nueva Cita</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form>
-                        <p style="color: blue;">Programar Cita</p>
 
                         <input name='idAgenda' id="idAgenda" hidden="" />
 
@@ -717,15 +827,13 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="myLargeModalLabel">Formulario Cancelar Cita</h5>
+                    <h5 class="modal-title" id="myLargeModalLabel"><i class="fa fa-times-circle"></i> Cancelar Cita</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form>
-                        <p style="color: blue;">Cancelar Cita</p>
-
                         <input name='idCita' id="idCita" hidden="" />
                         <div id="mens_cita_cancelar" style="display: none;"></div>
                         <div class="form-row">
