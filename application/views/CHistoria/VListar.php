@@ -281,7 +281,7 @@
     </div>
 
     <!-- Skeleton Loader -->
-    <div id="skeleton-loader" class="skeleton-loader">
+    <div id="skeleton-loader" class="skeleton-loader" style="display: none;">
         <div class="skeleton-table">
             <div class="skeleton-header"></div>
             <div class="skeleton-row"></div>
@@ -299,7 +299,7 @@
     </div>
 
     <!-- Contenedor de datos reales -->
-    <div id="mens_cita" style="display: none;"></div>
+    <div id="mens_cita"></div>
 </div>
 
 <script type='text/javascript'>
@@ -445,22 +445,25 @@
     });
 
     // Primera carga con skeleton loader
-    $.ajax({
-        url: "<?php echo base_url() . 'index.php/CHistoria/agenda_cita'; ?>",
-        type: 'POST',
-
-        success: function(result) {
-            // Ocultar skeleton loader
-            $("#skeleton-loader").fadeOut(300, function() {
-                // Mostrar datos reales
-                $("#mens_cita").html(result).fadeIn(400);
-            });
-        },
-        error: function() {
-            $("#skeleton-loader").fadeOut(300, function() {
-                $("#mens_cita").html('<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h5>Error al cargar las citas</h5><p>Por favor, recarga la página</p></div>').fadeIn(400);
-            });
-        }
+    $(document).ready(function() {
+        // Mostrar skeleton loader antes de cargar
+        $("#skeleton-loader").show();
+        
+        $.ajax({
+            url: "<?php echo base_url() . 'index.php/CHistoria/agenda_cita'; ?>",
+            type: 'POST',
+            timeout: 10000, // 10 segundos timeout
+            
+            success: function(result) {
+                // Ocultar skeleton loader y mostrar datos
+                $("#skeleton-loader").hide();
+                $("#mens_cita").html(result).show();
+            },
+            error: function() {
+                $("#skeleton-loader").hide();
+                $("#mens_cita").html('<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h5>Error al cargar las citas</h5><p>Por favor, recarga la página</p></div>').show();
+            }
+        });
     });
 
 
