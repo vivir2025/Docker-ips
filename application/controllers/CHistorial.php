@@ -1,52 +1,11 @@
-<style>
-
-#boton:hover { 
-   -webkit-transform:scale(1.3);transform:scale(1.3);
-   overflow:hidden;
-   border-radius: 90px;
-   background:#F04848;
-
-} </style>
-
-
-<style>
-#segundo:hover { 
-   -webkit-transform:scale(1.3);transform:scale(1.3);
-   overflow:hidden;
-   border-radius: 30px;
-   background:#0004FF;
-
-} </style>
-
-<style>
-#tercero:hover { 
-   -webkit-transform:scale(1.3);transform:scale(1.3);
-   overflow:hidden;
-   border-radius: 30px;
-   background:#FFD800;
-
-} </style>
-<style>
-#cuarto:hover { 
-   -webkit-transform:scale(1.3);transform:scale(1.3);
-   overflow:hidden;
-   border-radius: 30px;
-   background:#00B305;
-
-} </style>
-<style>
-#quinto:hover { 
-   -webkit-transform:scale(1.3);transform:scale(1.3);
-   overflow:hidden;
-   border-radius: 30px;
-   background:#029FFF;
-
-} </style>
-<!-- This is the part of the logic of the history where the attention
-  that the medications have had, referrals, among other aspects, regarding the patient 
-  is searched by identification number. -->
-
 <?php
+/**
+ * Controlador de Historial Clínico
+ * 
+ * Este controlador maneja la lógica del historial clínico donde se busca
+ * la atención que han tenido los medicamentos, remisiones, entre otros aspectos,
+ * sobre el paciente, buscando por número de identificación.
+ */
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class CHistorial extends CI_Controller

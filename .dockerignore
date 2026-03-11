@@ -1,0 +1,61 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE y editores
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentación
+README.md
+readme.rst
+contributing.md
+*.md
+!docker/mysql/init/README.md
+
+# Guías y documentación del proyecto
+user_guide/
+GUIA_*.md
+PLAN_*.md
+
+# Logs de desarrollo local
+application/logs/*.php
+*.log
+
+# Cache local
+application/cache/*
+!application/cache/index.html
+!application/cache/.htaccess
+
+# Archivos temporales
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Node modules (si existiera)
+node_modules/
+npm-debug.log
+
+# Composer vendor (si existiera)
+vendor/
+
+# Archivos de entorno (se montan como volumen)
+.env.local
+
+# Archivos del sistema Windows
+Thumbs.db
+desktop.ini
+
+# Backups de base de datos locales
+*.sql
+!docker/mysql/init/*.sql
+
+# Archivos PHP temporales
+php_errors.log
+error_log

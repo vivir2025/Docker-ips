@@ -29,3 +29,24 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 *.sublime-project
 /tests/tests/
 /tests/results/
+
+# ==========================================
+# Docker - Archivos sensibles y temporales
+# ==========================================
+
+# Variables de entorno con contraseñas reales
+.env
+
+# Datos y volúmenes de Docker (MySQL, etc)
+docker/mysql/data/
+
+# Dumps de base de datos con datos sensibles
+# IMPORTANTE: 01-schema.sql puede contener datos reales de pacientes
+docker/mysql/init/01-schema.sql
+
+# Uploads de usuarios (archivos PDF, imágenes, etc)
+uploads/*
+!uploads/.gitkeep
+
+# Logs de Docker
+*.log

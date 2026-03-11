@@ -1,0 +1,94 @@
+services:
+  # Servicio de base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: ips_mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      # Persistencia de datos
+      - mysql_data:/var/lib/mysql
+      # Scripts de inicialización (se ejecutan en orden alfabético)
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - ips_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Servicio de aplicación PHP/Apache
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cajibio_app
+    restart: always
+    volumes:
+      # Montar código fuente
+      - .:/var/www/html
+      # Persistir uploads
+      - ./uploads:/var/www/html/uploads
+      # Persistir logs
+      - ./application/logs:/var/www/html/application/logs
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ips_network
+
+  # Servicio phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: ips_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ips_network
+
+  # Servicio Nginx como reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ips_nginx
+    restart: always
+    ports:
+      - "${APP_PORT:-80}:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+      - phpmyadmin
+    networks:
+      - ips_network
+
+# Redes
+networks:
+  ips_network:
+    name: ips_ips_network
+    driver: bridge
+
+# Volúmenes
+volumes:
+  mysql_data:
+    driver: local
