@@ -252,7 +252,7 @@ ips/
 │   │   ├── nginx.conf         # Config principal Nginx
 │   │   └── default.conf       # Reverse proxy config
 │   └── scripts/
-│       └── entrypoint.sh      # Script de inicio del contenedor
+│       └── point.sh      # Script de inicio del contenedor
 ├── Dockerfile                 # Imagen PHP/Apache
 ├── docker-compose.yml         # Orquestación de servicios
 ├── .env                       # Variables de entorno
