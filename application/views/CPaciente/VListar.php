@@ -292,15 +292,34 @@
     }
 
     $(document).ready(function () {
-        if ($.fn.DataTable.isDataTable('#example')) {
-            $('#example').DataTable().destroy();
-        }
         $('#example').DataTable({
+            destroy: true,
             serverSide: true,
             processing: true,
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
-                processing: '<span class="spinner-border spinner-border-sm"></span> Cargando...'
+                decimal:        ',',
+                thousands:      '.',
+                emptyTable:     'No hay datos disponibles en la tabla',
+                info:           'Mostrando _START_ a _END_ de _TOTAL_ registros',
+                infoEmpty:      'Mostrando 0 a 0 de 0 registros',
+                infoFiltered:   '(filtrado de _MAX_ registros totales)',
+                infoPostFix:    '',
+                lengthMenu:     'Mostrar _MENU_ registros',
+                loadingRecords: 'Cargando...',
+                processing:     'Procesando...',
+                search:         'Buscar:',
+                searchPlaceholder: 'Documento, nombre, correo...',
+                zeroRecords:    'No se encontraron resultados',
+                paginate: {
+                    first:    'Primero',
+                    last:     'Último',
+                    next:     'Siguiente',
+                    previous: 'Anterior'
+                },
+                aria: {
+                    sortAscending:  ': activar para ordenar la columna de forma ascendente',
+                    sortDescending: ': activar para ordenar la columna de forma descendente'
+                }
             },
             ajax: {
                 url: '<?= base_url("index.php/CPaciente/ajax_pacientes") ?>',
