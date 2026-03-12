@@ -538,7 +538,7 @@
         } else {
 
             if (confirm('¿Estas seguro de enviar este formulario?')) {
-                document.formulario.submit()
+                document.getElementById('guardandoOverlayHC').style.display='flex';document.formulario.submit();
             }
         }
     }

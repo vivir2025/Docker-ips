@@ -1,3 +1,23 @@
+<!-- ═══ Google-style top bar — IPS Cajibio (Agenda) ═════════════════════ -->
+<style>
+#ips-topbar-ag {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 0%; z-index: 99999;
+    background: linear-gradient(90deg, #3498db 0%, #85d8ff 40%, #2980b9 70%, #3498db 100%);
+    background-size: 300% 100%;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 10px rgba(52,152,219,0.8);
+    animation: ips-shine-ag 1.2s linear infinite;
+    display: none;
+}
+@keyframes ips-shine-ag {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+</style>
+
+<div id="ips-topbar-ag"></div>
+
 <style type="text/css">
 /* Estilos mejorados para la vista de agenda */
 .agenda-container {
@@ -388,11 +408,10 @@
     background: #7f8c8d;
 }
 
-.input_txt {
-  font-size: 61%;
-  width: 150px;
-  height: 37px;
-  display: table-cell;
+/* Forzar ancho completo en inputs de hora */
+input[type="time"].form-control {
+    min-width: 0;
+    width: 100%;
 }
 
 #lista_nombre, #lista_codigo {
@@ -596,17 +615,18 @@
     <div class="agenda-header-section" id="crear_agenda" style="display: none;">
         <h4><i class="fa fa-calendar-plus"></i> Crear Nueva Agenda</h4>
         <form>
+        <!-- Fila 1: Horarios, intervalo, brigada y modalidad -->
         <div class="form-row">
-            <div class="form-group col-md-1">
-                <label>Hora Inicio</label>
-                <input class="input_txt form-control" name="inicio" type="time" id="inicio">
-            </div>
-            <div class="form-group col-md-1">
-                <label>Hora Fin</label>
-                <input class="input_txt form-control" name="fin" type="time" id="fin">
+            <div class="form-group col-md-2">
+                <label><i class="fa fa-clock-o" style="color:#3498db"></i> Hora Inicio</label>
+                <input class="form-control" name="inicio" type="time" id="inicio">
             </div>
             <div class="form-group col-md-2">
-                <label>Intrevalo</label>
+                <label><i class="fa fa-clock-o" style="color:#e74c3c"></i> Hora Fin</label>
+                <input class="form-control" name="fin" type="time" id="fin">
+            </div>
+            <div class="form-group col-md-2">
+                <label><i class="fa fa-sliders" style="color:#3498db"></i> Intervalo</label>
                 <select class="form-control" name="intervalo" id="intervalo">
                     <option value="">[Seleccione]</option>
                     <option value="5">5 Minutos</option>
@@ -623,8 +643,8 @@
                     <option value="60">60 Minutos</option>
                 </select>
             </div>
-             <div class="form-group col-md-2">
-                <label>Brigada</label>
+            <div class="form-group col-md-3">
+                <label><i class="fa fa-users" style="color:#3498db"></i> Brigada</label>
                 <select class="form-control" name="brigada" id="brigada">
                     <option value="">[Seleccione]</option>
                     <?php
@@ -634,8 +654,8 @@
                     ?>
                 </select>
             </div>
-            <div class="form-group col-md-2">
-                <label>Modalidad</label>
+            <div class="form-group col-md-3">
+                <label><i class="fa fa-hospital-o" style="color:#3498db"></i> Modalidad</label>
                 <select class="form-control" name="modalidad" id="modalidad">
                     <option value="">[Seleccione]</option>
                     <option value="TELEMEDICINA">TELEMEDICINA</option>
@@ -643,18 +663,22 @@
                     <option value="EXTRAMURAL">EXTRAMURAL</option>
                 </select>
             </div>
-            <div class="form-group col-md-2">
-                <label>Etiqueta</label>
-                 <select class="form-control" name="etiqueta" id="etiqueta">
+        </div>
+        <!-- Fila 2: Etiqueta y botón -->
+        <div class="form-row align-items-end">
+            <div class="form-group col-md-5">
+                <label><i class="fa fa-tag" style="color:#3498db"></i> Etiqueta</label>
+                <select class="form-control" name="etiqueta" id="etiqueta">
                     <option value="">[Seleccione]</option>
                     <option value="REFORMULACION">REFORMULACION</option>
                     <option value="VISITA DOMICILIARIA">VISITA DOMICILIARIA</option>
                     <option value="CONTROL">CONTROL</option>
                 </select>
             </div>
-            <div class="form-group col-md-2">
-                <label style="opacity: 0;">---</label>
-                <button type="button" class="btn-agenda-action btn-agenda-success btn-block" id="add_agenda" style="height: 38px;"><i class="fa fa-plus-circle"></i> Crear Agenda</button>
+            <div class="form-group col-md-3">
+                <button type="button" class="btn-agenda-action btn-agenda-success btn-block" id="add_agenda" style="height: 38px; font-size:14px;">
+                    <i class="fa fa-plus-circle"></i> Crear Agenda
+                </button>
             </div>
         </div>
         </form>
@@ -1561,26 +1585,42 @@
 
     ///Agenda
 
+    // ── Barra de progreso ─────────────────────────────────────────────────
+    var $barAG = $('#ips-topbar-ag'), barTimerAG;
+
+    function barStartAG() {
+        clearTimeout(barTimerAG);
+        $barAG.stop(true).css({ width: '0%', display: 'block' }).animate({ width: '75%' }, 700);
+    }
+    function barDoneAG() {
+        $barAG.animate({ width: '100%' }, 200, function () {
+            var self = $(this);
+            barTimerAG = setTimeout(function () { self.fadeOut(300).css('width', '0%'); }, 250);
+        });
+    }
+
     //$('#buttonConsultar').click(function(evento){
     function buscar_agenda() {
         var idUsuario = $('#profesional').val();
         var ageFecha = $('#fecha').val();
         var idProceso = $('#area').val();
 
-        // Mostrar skeleton loader
+        // Mostrar skeleton loader + barra superior
         $('#resultado').show();
         $('#skeletonLoader').show();
         $('#agendaResultados').html('');
+        barStartAG();
 
         $.post("<?= base_url("index.php/CAgenda/mostrarAgenda") ?>", {
             usuario: idUsuario,
             fecha: ageFecha,
             proceso: idProceso
         }, function(data) {
-            // Ocultar skeleton y mostrar resultados
+            // Ocultar skeleton, mostrar resultados, completar barra
             $('#skeletonLoader').hide();
             $('#crear_agenda').show();
             $("#agendaResultados").html(data);
+            barDoneAG();
         });
     }
     //});

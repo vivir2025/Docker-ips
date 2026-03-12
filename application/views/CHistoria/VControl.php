@@ -1835,7 +1835,8 @@ $(document).ready(function() {
         } else {
 
             if (confirm('¿Estas seguro de enviar este formulario?')) {
-                document.formulario.submit()
+                document.getElementById('guardandoOverlayHC').style.display='flex';
+                document.formulario.submit();
             }
         }
     }
@@ -2902,3 +2903,5 @@ $("#add_pdf").click(function(e) {
         });
 
 </script>
+
+<style>#guardandoOverlayHC{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,62,80,.88);z-index:99999;justify-content:center;align-items:center;flex-direction:column}.guardando-box{background:#fff;border-radius:16px;padding:40px 55px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35)}.guardando-spinner{width:56px;height:56px;border:6px solid #f0f0f0;border-top:6px solid #3498db;border-radius:50%;animation:spin-hc .9s linear infinite;margin:0 auto 18px}.guardando-titulo{font-size:20px;font-weight:700;color:#2c3e50;margin-bottom:6px}.guardando-sub{font-size:14px;color:#7f8c8d}@keyframes spin-hc{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style><div id='guardandoOverlayHC'><div class='guardando-box'><div class='guardando-spinner'></div><div class='guardando-titulo'>Guardando Historia Clínica</div><div class='guardando-sub'>Por favor espere, no cierre esta ventana...</div></div></div>
