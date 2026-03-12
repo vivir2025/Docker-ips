@@ -217,17 +217,17 @@
     </div>
 
     <form id="formInforme" action="<?= site_url('CInforme/exportar') ?>" method="post">
-        <div class="form-group-inline">
-            <label>📅 Desde:</label>
-            <input type="date" name="fecha" class="form-control" required>
-        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-weight: 600; color: #2c3e50; margin: 0;">📅 Desde:</label>
+                <input type="date" name="fecha" style="padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px;" required>
+            </div>
 
-        <div class="form-group-inline">
-            <label>📅 Hasta:</label>
-            <input type="date" name="fecha1" class="form-control" required>
-        </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-weight: 600; color: #2c3e50; margin: 0;">📅 Hasta:</label>
+                <input type="date" name="fecha1" style="padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px;" required>
+            </div>
 
-        <div style="text-align: center; margin-top: 40px;">
             <button type="submit" class="btn-generar">
                 <i class="fas fa-download"></i> Generar Informe
             </button>
