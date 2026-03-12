@@ -112,6 +112,7 @@ END AS codigo_trabajo
       LEFT JOIN especialidad AS esp ON esp.idEspecialidad = u2.especialidad_idEspecialidad
       WHERE c.citFecha BETWEEN '" . $fecha1 . "' AND '" . $fecha2 . "'
         AND p.proNombre = 'ESPECIAL CONTROL'
+        AND c.citEstado IN ('FINALIZADO', 'FINALIZADO Y FACTURADO')
     ");
 
     return $consulta->result();
@@ -317,6 +318,7 @@ END AS codigo_trabajo
       LEFT JOIN cups AS cup ON cup.idCups = cc.cups_idCups
       WHERE c.citFecha BETWEEN '" . $fecha1 . "' AND '" . $fecha2 . "'
         AND p.proNombre = 'ESPECIAL CONTROL'
+        AND c.citEstado IN ('FINALIZADO', 'FINALIZADO Y FACTURADO')
     ");
 
     return $consulta->result();
