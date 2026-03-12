@@ -1,1037 +1,363 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class MHistoria extends CI_Model
+/**
+ * MHistoria — Modelo de Historia Clínica
+ *
+ * Extiende MY_Model para garantizar:
+ *  - SoftDelete: ningún registro de HC se destruye físicamente
+ *  - Audit Trail: todo CREATE/UPDATE/DELETE queda en auditoria_hc
+ *  - Integridad: no se pueden modificar registros eliminados
+ *
+ * Cumplimiento: Resolución 1995/1999 MinSalud Colombia
+ *
+ * REGLA DE ORO: usar safe_insert() / safe_update() / soft_delete()
+ *               en lugar de $this->db->insert/update/delete directo.
+ */
+class MHistoria extends MY_Model
 {
-  //detalle_control1
-
-  public function __construct()
-  {
-    parent::__construct();
-
-    $this->load->database();
-  }
-  // There is the function where it saves the related data of the different medical
-  //  records and retrieves the data of the previous history and to print the history 
-  //  with its related fields, whether it is referral medications among the other functionalities. 
-  public function guardar_paraclinico_excel($_DATOS_EXCEL)
-  {
-    $resultado = $this
-      ->db
-      ->insert_batch('hcs_paraclinico', $_DATOS_EXCEL);
-
-    if ($resultado) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  public function guardar_visitas_excel($_DATOS_EXCEL)
-  {
-    $resultado = $this
-      ->db
-      ->insert_batch('hcs_visitas', $_DATOS_EXCEL);
-
-    if ($resultado) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
-  public function guardar_medicamento($data)
-  {
-
-    return $this->db->insert('historia_medicamento', $data);
-
-    return true;
-  }
-
-  public function guardar_adicionales($datos_adicionales)
-  {
-
-    return $this->db->insert('hc_complementaria', $datos_adicionales);
-
-    return true;
-  }
-
-  public function guardar_diagnostico($data)
-  {
-
-    return $this->db->insert('historia_diagnostico', $data);
-
-    return true;
-  }
-
-  public function guardar_cups($data)
-  {
-
-    return $this->db->insert('historia_cups', $data);
-
-    return true;
-  }
-
-  public function guardar_remision($datos)
-  {
-    $this->db->insert('historia_remision', $datos);
-
-    return true;
-  }
-  public function guardar_pdf($datos)
-  {
-    $this->db->insert('hc-pdf', $datos);
-
-    return true;
-  }
-
-
-  public function detalle_carga_priemra_vez($pacDocumento)
-  {
-    $consulta = $this->db->query("
-      SELECT hc.insulina_requiriente, hc.id_hc, c.idCita, tp.nom_abreviacion, d.depNombre, m.munNombre, e.empNombre, o.ocuNombre, zr.zonNombre, pac.pacEstCivil, pac.pacDocumento, pac.pacNombre, pac.pacApellido, pac.pacFecNacimiento, pac.pacSexo, r.regNombre, pac.pacTelefono, pac.pacDireccion, hc.hcAcompanante, hc.hcAcuParentesco, hc.hcAcuTelefono, hc.finalidad_idFinalidad,hc.fecha_final,
-      hc.hcClasificacionHta,  hc.hcClasificacionDm, hc.hcClasificacionRcv,hc.hcClasificacionEstadoMetabolico, hc.hcAlimentacion, hc.hcHipertensionArterialPersonal,hcDiabetesMellitusPersonal,hc.hcFomentoActividadFisica, hc.hcOmportanciaAdherenciaTratamiento, hc.hcDisminucionConsumoSalAzucar, hc.hcDisminucionConsumoCigarrillo, hc.hcDisminucionPeso, hc.hcConsumoFrutasVerduras, hc.hcOlvidaTomarMedicamentos, hc.hcTomaMedicamentosHoraIndicada, hc.hcCuandoEstaBienDejaTomarMedicamentos, hc.hcSienteMalDejaTomarlos, u.usuNombre, u.usuApellido, u.usuRegistroProfesional, hc.hcClasificacionErcEstado, hc.hcClasificacionErcCategoriaAmbulatoriaPersistente, hc.tasa_filtracion_glomerular_ckd_epi, hc.tasa_filtracion_glomerular_gockcroft_gault, c.citFecha
-      FROM hc AS hc
-
-      INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-      INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-      INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-      INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
-      INNER JOIN departamento AS d ON d.idDepartamento  = pac.depto_residencia
-      INNER JOIN municipio AS m ON m.idMunicipio  = pac.municipio_residencia
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
-      INNER JOIN tipo_afiliciacion AS ta ON ta.tip_afi = pac.id_tipo_afiliacion
-      INNER JOIN ocupacion AS o ON o.idOcupacion = pac.pacOcupacion
-      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
-
-      WHERE 
-      pac.pacDocumento = '" . $pacDocumento . "' AND
-      (c.citEstado = 'FINALIZADO' OR c.citEstado = 'FINALIZADO Y FACTURADO') AND
-      a.proceso_idProceso = 3
-      ORDER BY c.citFechaInicio DESC LIMIT 1;");
-
-    return $consulta->result();
-  }
-
-  public function detalle_control($pacDocumento)
-  {
-    $consulta = $this->db->query("
-      SELECT hc.insulina_requiriente, hc.id_hc, c.idCita, tp.nom_abreviacion, d.depNombre, m.munNombre, e.empNombre, o.ocuNombre, zr.zonNombre, pac.pacEstCivil, pac.pacDocumento, pac.pacNombre, pac.pacApellido, pac.pacFecNacimiento, pac.pacSexo, r.regNombre, pac.pacTelefono, pac.pacDireccion, hc.hcAcompanante, hc.hcAcuParentesco, hc.hcAcuTelefono, hc.finalidad_idFinalidad,hc.fecha_final,
-      hc.hcClasificacionHta,hc.hcTalla, hc.hcClasificacionDm, hc.hcClasificacionRcv,hc.hcClasificacionEstadoMetabolico, hc.hcAlimentacion, hc.hcHipertensionArterialPersonal,hc.hcDiabetesMellitusPersonal,hc.hcFomentoActividadFisica, hc.hcOmportanciaAdherenciaTratamiento, hc.hcDisminucionConsumoSalAzucar, hc.hcDisminucionConsumoCigarrillo, hc.hcDisminucionPeso, hc.hcConsumoFrutasVerduras, hc.hcOlvidaTomarMedicamentos, hc.hcTomaMedicamentosHoraIndicada, hc.hcCuandoEstaBienDejaTomarMedicamentos, hc.hcSienteMalDejaTomarlos, u.usuNombre, u.usuApellido, u.usuRegistroProfesional, hc.hcClasificacionErcEstado, hc.hcClasificacionErcCategoriaAmbulatoriaPersistente, hc.tasa_filtracion_glomerular_ckd_epi, hc.tasa_filtracion_glomerular_gockcroft_gault
-      FROM hc AS hc
-
-      INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-      INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-      INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-      INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
-      INNER JOIN departamento AS d ON d.idDepartamento  = pac.depto_residencia
-      INNER JOIN municipio AS m ON m.idMunicipio  = pac.municipio_residencia
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
-      INNER JOIN tipo_afiliciacion AS ta ON ta.tip_afi = pac.id_tipo_afiliacion
-      INNER JOIN ocupacion AS o ON o.idOcupacion = pac.pacOcupacion
-      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
-
-      WHERE 
-      pac.pacDocumento = '" . $pacDocumento . "' AND
-      (c.citEstado = 'FINALIZADO' OR c.citEstado = 'FINALIZADO Y FACTURADO') AND
-      (a.proceso_idProceso = 1 OR a.proceso_idProceso = 3 OR a.proceso_idProceso = 4 OR a.proceso_idProceso = 6 OR a.proceso_idProceso = 7)
-      ORDER BY c.citFechaInicio DESC LIMIT 1;");
-
-    return $consulta->result();
-  }
-
-
-  public function detalle_clasificacion($pacDocumento)
-  {
-    $consulta = $this->db->query("
-      SELECT hc.insulina_requiriente, hc.id_hc, c.idCita, hc.hcAcompanante, hc.hcAcuParentesco, 
-      hc.hcAcuTelefono, hc.finalidad_idFinalidad,hc.fecha_final,
-      hc.hcClasificacionHta, hc.hcClasificacionDm, hc.hcClasificacionRcv,hc.hcClasificacionEstadoMetabolico, hc.hcAlimentacion, hc.hcHipertensionArterialPersonal, hc.hcDiabetesMellitusPersonal,
-      hc.hcFomentoActividadFisica,
-      hc.hcOmportanciaAdherenciaTratamiento, hc.hcDisminucionConsumoSalAzucar, 
-      hc.hcDisminucionConsumoCigarrillo, hc.hcDisminucionPeso, hc.hcConsumoFrutasVerduras, 
-      hc.hcOlvidaTomarMedicamentos, hc.hcTomaMedicamentosHoraIndicada, 
-      hc.hcCuandoEstaBienDejaTomarMedicamentos, hc.hcSienteMalDejaTomarlos,
-      hc.hcClasificacionErcEstado, hc.hcClasificacionErcCategoriaAmbulatoriaPersistente, 
-      hc.tasa_filtracion_glomerular_ckd_epi, hc.tasa_filtracion_glomerular_gockcroft_gault
-      FROM hc AS hc
-
-      INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-      INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-      INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-      INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-
-      WHERE 
-      pac.pacDocumento = '" . $pacDocumento . "' AND
-      (c.citEstado = 'FINALIZADO' OR c.citEstado = 'FINALIZADO Y FACTURADO') AND
-      (a.proceso_idProceso = 1 OR a.proceso_idProceso = 6 OR a.proceso_idProceso = 7)
-      ORDER BY c.citFechaInicio DESC LIMIT 1;");
-
-    return $consulta->result();
-  }
-
-  public function detalle_control1($pacDocumento)
-  {
-    $consulta = $this->db->query("
-      SELECT hc.insulina_requiriente, hc.id_hc, c.idCita, tp.nom_abreviacion, d.depNombre, m.munNombre, e.empNombre, o.ocuNombre, zr.zonNombre, pac.pacEstCivil, pac.pacDocumento, pac.pacNombre , pac.pacNombre2, pac.pacApellido , pac.pacApellido2, pac.pacFecNacimiento, pac.pacSexo, r.regNombre, pac.pacTelefono, pac.pacDireccion, hc.hcAcompanante, hc.hcAcuParentesco, hc.hcAcuTelefono, hc.finalidad_idFinalidad,hc.fecha_final,
-      hc.hcClasificacionHta, hc.hcClasificacionDm, hc.hcClasificacionRcv,hc.hcClasificacionEstadoMetabolico, hc.hcAlimentacion, hc.hcHipertensionArterialPersonal, hc.hcDiabetesMellitusPersonal,hc.hcFomentoActividadFisica, hc.hcOmportanciaAdherenciaTratamiento, hc.hcDisminucionConsumoSalAzucar, hc.hcDisminucionConsumoCigarrillo, hc.hcDisminucionPeso, hc.hcConsumoFrutasVerduras, hc.hcOlvidaTomarMedicamentos, hc.hcTomaMedicamentosHoraIndicada, hc.hcCuandoEstaBienDejaTomarMedicamentos, hc.hcSienteMalDejaTomarlos, u.usuNombre, u.usuApellido, u.usuRegistroProfesional, hc.hcClasificacionErcEstado, hc.hcClasificacionErcCategoriaAmbulatoriaPersistente, hc.tasa_filtracion_glomerular_ckd_epi, hc.tasa_filtracion_glomerular_gockcroft_gault
-      FROM hc AS hc
-
-      INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-      INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-      INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-      INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
-      INNER JOIN departamento AS d ON d.idDepartamento  = pac.depto_residencia
-      INNER JOIN municipio AS m ON m.idMunicipio  = pac.municipio_residencia
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
-      INNER JOIN tipo_afiliciacion AS ta ON ta.tip_afi = pac.id_tipo_afiliacion
-      INNER JOIN ocupacion AS o ON o.idOcupacion = pac.pacOcupacion
-      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
-
-      WHERE 
-      pac.pacDocumento = '" . $pacDocumento . "' AND
-      (c.citEstado = 'FINALIZADO' OR c.citEstado = 'FINALIZADO Y FACTURADO') AND
-      (a.proceso_idProceso = 1 OR a.proceso_idProceso = 3 OR a.proceso_idProceso = 4 OR a.proceso_idProceso = 5 OR a.proceso_idProceso = 6 OR a.proceso_idProceso = 7)
-      ORDER BY c.citFechaInicio DESC LIMIT 1;");
-
-    return $consulta->result();
-  }
-
-  public function detalle_hc_por_documento($pacDocumento)
-  {
-    $consulta = $this->db->query("
-
-     SELECT *
-     FROM hc AS hc
-     INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-     INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
-     INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-     INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-     INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-     INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-     WHERE 
-     a.proceso_idProceso = 1 AND
-     pac.pacDocumento = '" . $pacDocumento . "' 
-     ORDER BY c.citFechaInicio DESC LIMIT 1 ");
-
-    return $consulta->result();
-  }
-
-  public function getPaciente($idUsuario, $fecha)
-  {
-    $consulta = $this->db->query("
-
-      SELECT
-      ccups.id_cat_cups, ccups.catNombre, c.idCita, c.citFechaInicio, pac.pacDocumento, pac.pacNombre, pac.pacApellido, e.empNombre, cup.cupNombre, ccups.catNombre, c.citEstado, usu_age.usuNombre, usu_age.usuApellido, a.proceso_idProceso 
-      FROM  cita AS c
-
-      INNER JOIN usuario AS usu_age ON usu_age.idUsuario = c.usu_creo_cita
-      INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
-      INNER JOIN cups AS cup ON cup.idCups = cc.cups_idCups
-      INNER JOIN categoria_cups AS ccups ON ccups.id_cat_cups = cc.id_categoria_cups
-      INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN agenda AS a ON c.agenda_idAgenda = a.idAgenda
-      INNER JOIN proceso AS p ON a.proceso_idProceso = p.idProceso
-      INNER JOIN usuario AS u ON a.usuario_idUsuario = u.idUsuario
-
-      WHERE
-      c.citFecha = '" . $fecha . "' AND
-      u.idUsuario = '" . $idUsuario . "' ");
-    return $consulta->result();
-  }
-  public function informacion_cita($idProceso, $idUsuario, $fecha)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  cita AS c
-      
-      INNER JOIN usuario AS usu_age ON usu_age.idUsuario = c.usu_creo_cita
-      INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
-      INNER JOIN cups AS cup ON cup.idCups = cc.cups_idCups
-      INNER JOIN categoria_cups AS ccups ON ccups.id_cat_cups = cc.id_categoria_cups
-      INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN agenda AS a ON c.agenda_idAgenda = a.idAgenda
-      INNER JOIN proceso AS p ON a.proceso_idProceso = p.idProceso
-      INNER JOIN usuario AS u ON a.usuario_idUsuario = u.idUsuario
-
-      WHERE
-
-      c.citEstado != 'CANCELADO' AND  
-      /*c.citEstado != 'FINALIZADO' AND
-      c.citEstado != 'FINALIZADO Y FACTURADO' AND*/
-      p.idProceso = '" . $idProceso . "' AND
-      u.idUsuario =  '" . $idUsuario . "' AND 
-      c.citFecha=  '" . $fecha . "'
-      ORDER BY c.citFechaInicio ASC
-      ");
-
-    return $consulta->result();
-  }
-
-  public function informacion_cita1($idProceso, $idUsuario, $fecha)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  cita AS c
-      
-      LEFT JOIN hc AS h ON h.cita_idCita = c.idCita
-      INNER JOIN usuario AS usu_age ON usu_age.idUsuario = c.usu_creo_cita
-      INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
-      INNER JOIN cups AS cup ON cup.idCups = cc.cups_idCups
-      INNER JOIN categoria_cups AS ccups ON ccups.id_cat_cups = cc.id_categoria_cups
-      INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN agenda AS a ON c.agenda_idAgenda = a.idAgenda
-      INNER JOIN proceso AS p ON a.proceso_idProceso = p.idProceso
-      INNER JOIN usuario AS u ON a.usuario_idUsuario = u.idUsuario
-
-      WHERE
-
-      c.citEstado != 'CANCELADO' AND  
-      /*c.citEstado != 'FINALIZADO' AND
-      c.citEstado != 'FINALIZADO Y FACTURADO' AND*/
-      p.idProceso = '" . $idProceso . "' AND
-      u.idUsuario =  '" . $idUsuario . "' AND 
-      c.citFecha=  '" . $fecha . "'
-      ORDER BY c.citFechaInicio ASC
-      ");
-
-    return $consulta->result();
-  }
-
-  // Nueva función para obtener citas por agenda específica
-  public function informacion_cita_por_agenda($idAgenda, $fecha)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  cita AS c
-      
-      LEFT JOIN hc AS h ON h.cita_idCita = c.idCita
-      INNER JOIN usuario AS usu_age ON usu_age.idUsuario = c.usu_creo_cita
-      INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
-      INNER JOIN cups AS cup ON cup.idCups = cc.cups_idCups
-      INNER JOIN categoria_cups AS ccups ON ccups.id_cat_cups = cc.id_categoria_cups
-      INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN agenda AS a ON c.agenda_idAgenda = a.idAgenda
-      INNER JOIN proceso AS p ON a.proceso_idProceso = p.idProceso
-      INNER JOIN usuario AS u ON a.usuario_idUsuario = u.idUsuario
-
-      WHERE
-
-      c.citEstado != 'CANCELADO' AND  
-      a.idAgenda = '" . $idAgenda . "' AND 
-      c.citFecha=  '" . $fecha . "'
-      ORDER BY c.citFechaInicio ASC
-      ");
-
-    return $consulta->result();
-  }
-
-  public function getItinerarioAgendaUser($idUsuario, $fecha)
-  {
-    $consulta = $this->db->query("
-
-     SELECT * FROM agenda AS a
-     INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-     INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-     INNER JOIN sede AS s ON s.idSede = a.sede_idSede
-
-     WHERE
-     a.ageFecha = '" . $fecha . "' AND
-     a.usuario_idUsuario = '" . $idUsuario . "'
-
-     ");
-    return $consulta->result();
-  }
-
-  public function get_data_paciente($idCita)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  cita AS c
-      INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
-      INNER JOIN cups AS cup ON cup.idCups = cc.cups_idCups
-      INNER JOIN agenda AS a ON  a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON  a.usuario_idUsuario = u.idUsuario
-	  INNER JOIN especialidad AS ui ON ui.idEspecialidad = u.especialidad_idEspecialidad	  
-      INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
-      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
-      INNER JOIN departamento AS d ON d.idDepartamento  = pac.depto_residencia
-      INNER JOIN municipio AS m ON m.idMunicipio  = pac.municipio_residencia
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
-      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
-      INNER JOIN tipo_afiliciacion AS ta ON ta.tip_afi = pac.id_tipo_afiliacion
-      INNER JOIN ocupacion AS o ON o.idOcupacion = pac.pacOcupacion
-
-      WHERE
-
-      c.idCita = '" . $idCita . "'
-
-
-      ");
-    return $consulta->result();
-  }
-
-  public function guardar($datos)
-  {
-    $this->db->insert('hc', $datos);
-
-    return $this->db->insert_id();
-  }
-
-  public function ver_codigo($codigo)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  diagnostico AS d WHERE d.diaCodigo LIKE '" . $codigo . "%'");
-    return $consulta->result();
-  }
-
-  public function ver_diagnostico($nombre_diagnostico)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  diagnostico AS d WHERE d.diaNombre LIKE '%" . $nombre_diagnostico . "%'");
-    return $consulta->result();
-  }
-
-  public function getCupsByNombre($nombre_cups)
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      cups AS c
-      WHERE
-      c.cupNombre LIKE '%" . $nombre_cups . "%'");
-    return $consulta->result();
-  }
-
-  public function getMedicamentoByNombre($nombre_medicamento)
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      medicamento AS m
-      WHERE
-      m.medNombre LIKE '%" . $nombre_medicamento . "%'");
-    return $consulta->result();
-  }
-
-  public function getRemisionByNombre($nombre_remision)
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      remision AS r
-      WHERE
-      r.remNombre LIKE '%" . $nombre_remision . "%'");
-    return $consulta->result();
-  }
-
-  public function detalle_historia_medicamento($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_medicamento AS hm
-      INNER JOIN medicamento AS m ON m.idMedicamento = hm.medicamento_idMedicamento
-      WHERE
-      hm. historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-  public function detalle_historia_diagnostico($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_diagnostico AS hd
-      INNER JOIN diagnostico AS d ON d.idDiagnostico = hd.diagnostico_idDiagnostico
-      WHERE
-      hd. historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-  public function detalle_historia_diagnostico_principal($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_diagnostico AS hd
-      INNER JOIN diagnostico AS d ON d.idDiagnostico = hd.diagnostico_idDiagnostico
-      WHERE
-      hd.his_dia_tipo = 'PRINCIPAL' AND
-      hd.historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-  public function detalle_historia_diagnostico_Dx1($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_diagnostico AS hd
-      INNER JOIN diagnostico AS d ON d.idDiagnostico = hd.diagnostico_idDiagnostico
-      WHERE
-      hd.his_dia_tipo = 'TIPO 1' AND
-      hd.historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-  public function detalle_historia_diagnostico_Dx2($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_diagnostico AS hd
-      INNER JOIN diagnostico AS d ON d.idDiagnostico = hd.diagnostico_idDiagnostico
-      WHERE
-      hd.his_dia_tipo = 'TIPO 2' AND
-      hd.historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-  public function detalle_historia_diagnostico_Dx3($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_diagnostico AS hd
-      INNER JOIN diagnostico AS d ON d.idDiagnostico = hd.diagnostico_idDiagnostico
-      WHERE
-      hd.his_dia_tipo = 'TIPO 3' AND
-      hd.historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-
-  public function detalle_historia_remision($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_remision AS hr
-      INNER JOIN remision AS r ON r.idRemision = hr.remision_idRemision
-      WHERE
-      hr. historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-
-  // funcion para listar las rutas de los pdf
-  public function detalle_historia_pdf($idHistoria)
-  {
-      $consulta = $this->db->query("SELECT *
-                                    FROM `hc-pdf`
-                                    WHERE idHistoria = $idHistoria");
-      return $consulta->result();
-  }
-  
-
-  public function detalle_antecedentes_personales($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      hc_complementaria AS hcc
-    
-      WHERE
-      hcc. hc_idHc = $idHistoria");
-    return $consulta->result();
-  }
-
-  public function detalle_historia_cups($idHistoria)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      historia_cups AS hc
-      INNER JOIN cups AS c ON c.idCups = hc.cups_idCups
-      WHERE
-      hc. historia_idHistoria = $idHistoria");
-    return $consulta->result();
-  }
-
-  public function getHcByIdCita($idCita)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  hc
-      WHERE
-
-      hc.cita_idCita = $idCita
-
-      ");
-    return $consulta->result();
-  }
-
-
-  public function actualizar_guardado($datos, $idHistoria)
-  {
-    $this->db->where('id_hc', $idHistoria);
-    $consulta = $this->db->update('hc', $datos);
-    if ($consulta == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public function delete_medicamento($id_his_med)
-  {
-    $consulta = $this->db->query("DELETE FROM historia_medicamento WHERE id_his_med=$id_his_med");
-    if ($consulta == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  public function delete_remision($id_his_rem)
-  {
-    $consulta = $this->db->query("DELETE FROM historia_remision WHERE id_his_rem=$id_his_rem");
-    if ($consulta == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public function delete_cups($id_his_cups)
-  {
-    $consulta = $this->db->query("DELETE FROM historia_cups WHERE id_his_cups=$id_his_cups");
-    if ($consulta == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public function delete_diagnostico($id_his_dia)
-  {
-    $consulta = $this->db->query("DELETE FROM historia_diagnostico WHERE id_his_dia=$id_his_dia");
-    if ($consulta == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public function datos_historia($idHistoria)
-  {
-    $consulta = $this->db->query("
-
-      SELECT * FROM  hc AS hc 
-      INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-      INNER JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
-      INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-      INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-      INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
-      INNER JOIN departamento AS d ON d.idDepartamento  = pac.depto_residencia
-      INNER JOIN municipio AS m ON m.idMunicipio  = pac.municipio_residencia
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
-      INNER JOIN tipo_afiliciacion AS ta ON ta.tip_afi = pac.id_tipo_afiliacion
-      INNER JOIN ocupacion AS o ON o.idOcupacion = pac.pacOcupacion
-      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
-      WHERE hc.id_hc = $idHistoria");
-    return $consulta->result();
-
-  }
-  public function datos_visitas($id_visita)
-  {
-      $consulta = $this->db->query("
-          SELECT * FROM hcs_visitas
-          WHERE id_hcs_visitas = $id_visita
-      ");
-  
-      return $consulta->result();
-  }
-  public function datos_desentimiento($id_desentimiento)
-  {
-      $consulta = $this->db->query("
-          SELECT * FROM desentimiento
-          WHERE id_de = $id_desentimiento
-      ");
-  
-      return $consulta->result();
-  }
-  public function actualizardatos($data, $id_his_dia)
-  {
-    $this->db->where('id_his_dia', $id_his_dia);
-    $consulta = $this->db->update('historia_diagnostico', $data);
-    if ($consulta == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public function actualizar_diagnostico($data, $id)
-  {
-    $this->db->where('id_his_med', $id);
-    $consulta = $this->db->update('historia_medicamento', $data);
-    if ($consulta == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
-  function ver_medicamento($postData = array())
-  {
-
-    $response = array();
-
-    if (isset($postData['id_his_med'])) {
-
-      // Select record
-      $this->db->select('*');
-      $this->db->where('id_his_med', $postData['id_his_med']);
-      $records = $this->db->get('historia_medicamento');
-      $response = $records->result_array();
+    // Tablas principales que maneja este modelo
+    const T_HC               = 'hc';
+    const T_MEDICAMENTO      = 'historia_medicamento';
+    const T_DIAGNOSTICO      = 'historia_diagnostico';
+    const T_CUPS             = 'historia_cups';
+    const T_COMPLEMENTARIA   = 'hc_complementaria';
+    const T_PARACLINICO      = 'hcs_paraclinico';
+    const T_VISITAS          = 'hcs_visitas';
+
+    public function __construct()
+    {
+        parent::__construct();
     }
 
-    return $response;
-  }
-
-  public function detalle_trabajo_social($pacDocumento)
-  {
-    $consulta = $this->db->query("
-      SELECT * FROM hc AS hc
-
-      INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-      INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-      INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-      INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
-      INNER JOIN departamento AS d ON d.idDepartamento  = pac.depto_residencia
-      INNER JOIN municipio AS m ON m.idMunicipio  = pac.municipio_residencia
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
-      INNER JOIN tipo_afiliciacion AS ta ON ta.tip_afi = pac.id_tipo_afiliacion
-      INNER JOIN ocupacion AS o ON o.idOcupacion = pac.pacOcupacion
-      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
-
-      WHERE 
-      pac.pacDocumento = '" . $pacDocumento . "' AND
-      (c.citEstado = 'FINALIZADO' OR c.citEstado = 'FINALIZADO Y FACTURADO') AND
-      a.proceso_idProceso = 2
-      ORDER BY c.citFechaInicio DESC LIMIT 1;");
-
-
-
-    return $consulta->result();
-  }
-
-  public function detalle_reformulacion($pacDocumento)
-  {
-    $consulta = $this->db->query("
-      SELECT * FROM hc AS hc
-
-      INNER JOIN cita AS c ON c.idCita = hc.cita_idCita
-      INNER JOIN agenda AS a ON a.idAgenda = c.agenda_idAgenda
-      INNER JOIN usuario AS u ON u.idUsuario = a.usuario_idUsuario
-      INNER JOIN proceso AS p ON p.idProceso = a.proceso_idProceso
-      INNER JOIN paciente AS pac ON pac.idPaciente = c.paciente_idPaciente
-      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
-      INNER JOIN departamento AS d ON d.idDepartamento  = pac.depto_residencia
-      INNER JOIN municipio AS m ON m.idMunicipio  = pac.municipio_residencia
-      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
-      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
-      INNER JOIN tipo_afiliciacion AS ta ON ta.tip_afi = pac.id_tipo_afiliacion
-      INNER JOIN ocupacion AS o ON o.idOcupacion = pac.pacOcupacion
-      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
-
-      WHERE 
-      pac.pacDocumento = '" . $pacDocumento . "' AND
-      (c.citEstado = 'FINALIZADO' OR c.citEstado = 'FINALIZADO Y FACTURADO') AND
-      (a.proceso_idProceso = 1 OR a.proceso_idProceso = 6 OR a.proceso_idProceso = 7)
-      ORDER BY c.citFechaInicio DESC LIMIT 1;");
-    return $consulta->result();
-  }
-
-
-  function get_campos_hc()
-  {
-    $result = $this->db->list_fields('hc');
-
-
-    return $result;
-  }
-
-  function get_campos_hc_complementaria()
-  {
-    $result = $this->db->list_fields('hc_complementaria');
-
-
-    return $result;
-  }
-
-  public function ver_hc_by_fecha($fecha1, $fecha2)
-  {
-
-    $consulta = $this->db->query("
-
-      SELECT h.* FROM hc AS h
-
-      INNER JOIN cita AS c ON c.idCita = h.cita_idCita
-
-      WHERE
-      c.citFecha BETWEEN '" . $fecha1 . "'
-      AND '" . $fecha2 . "'
-      ");
-
-    return $consulta->result();
-  }
-
-  public function ver_hc_complementaria_by_fecha($fecha1, $fecha2)
-  {
-
-    $consulta = $this->db->query("
-
-      SELECT hcc.* FROM hc_complementaria AS hcc
-
-      INNER JOIN hc AS h ON h.id_hc = hcc.hc_idHc
-      INNER JOIN cita AS c ON c.idCita = h.cita_idCita
-
-      WHERE
-      c.citFecha BETWEEN '" . $fecha1 . "'
-      AND '" . $fecha2 . "'
-      ");
-
-    return $consulta->result();
-  }
-
-  function get_campos_hc_medicamento()
-  {
-    $result = $this->db->list_fields('historia_medicamento');
-
-
-    return $result;
-  }
-
-  public function ver_hc_medicamento_by_fecha($fecha1, $fecha2)
-  {
-
-    $consulta = $this->db->query("
-
-      SELECT hm .* FROM historia_medicamento AS hm
-
-      INNER JOIN hc AS h ON h.id_hc = hm.historia_idHistoria
-      INNER JOIN cita AS c ON c.idCita = h.cita_idCita
-
-      WHERE
-      c.citFecha BETWEEN '" . $fecha1 . "'
-      AND '" . $fecha2 . "'
-
-      ");
-
-    return $consulta->result();
-  }
-
-  function get_campos_hc_cups()
-  {
-    $result = $this->db->list_fields('historia_cups');
-
-
-    return $result;
-  }
-
-  public function ver_hc_cups_by_fecha($fecha1, $fecha2)
-  {
-
-    $consulta = $this->db->query("
-
-      SELECT cc.* FROM historia_cups AS cc
-
-      INNER JOIN hc AS h ON h.id_hc = cc.historia_idHistoria
-      INNER JOIN cita AS c ON c.idCita = h.cita_idCita
-
-      WHERE
-      c.citFecha BETWEEN '" . $fecha1 . "'
-      AND '" . $fecha2 . "'
-
-      ");
-
-    return $consulta->result();
-  }
-
-  function get_campos_hc_diagnostico()
-  {
-    $result = $this->db->list_fields('historia_diagnostico');
-
-
-    return $result;
-  }
-
-  public function ver_hc_diagnostico_by_fecha($fecha1, $fecha2)
-  {
-
-    $consulta = $this->db->query("
-
-      SELECT cc.* FROM historia_diagnostico AS cc
-
-      INNER JOIN hc AS h ON h.id_hc = cc.historia_idHistoria
-      INNER JOIN cita AS c ON c.idCita = h.cita_idCita
-
-      WHERE
-      c.citFecha BETWEEN '" . $fecha1 . "'
-      AND '" . $fecha2 . "'
-
-      ");
-
-    return $consulta->result();
-  }
-
-  function get_campos_hc_remision()
-  {
-    $result = $this->db->list_fields('historia_remision');
-
-
-    return $result;
-  }
-
-  public function ver_hc_remision_by_fecha($fecha1, $fecha2)
-  {
-
-    $consulta = $this->db->query("
-
-      SELECT cc.* FROM historia_remision AS cc
-
-      INNER JOIN hc AS h ON h.id_hc = cc.historia_idHistoria
-      INNER JOIN cita AS c ON c.idCita = h.cita_idCita
-
-      WHERE
-      c.citFecha BETWEEN '" . $fecha1 . "'
-      AND '" . $fecha2 . "'
-
-      ");
-
-    return $consulta->result();
-  }
-
-  public function get_paraclinico()
-  {
-    $consulta = $this->db->query("
-
-     SELECT *
-     FROM paraclinico");
-
-    return $consulta->result();
-  }
-
-  public function guardar_paraclinico($data)
-  {
-
-    return $this->db->insert('hcs_paraclinico', $data);
-
-    return true;
-  }
-
-  public function detalle_paraclinico_x_doc($documento)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      hcs_paraclinico AS hcp
-      WHERE
-      hcp.identificacion = $documento
-
-      ORDER BY hcp.fecha DESC LIMIT 2");
-    return $consulta->result();
-  }
- 
-
-  
-
-  public function guardar_visitas($data)
-  {
-
-    return $this->db->insert('hcs_visitas', $data);
-
-    return true;
-  }
-
-  public function detalle_visitas_x_doc($documento)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      hcs_visitas AS hcp
-      WHERE
-      hcp.identificacion = $documento
-
-      ORDER BY hcp.fecha DESC LIMIT 2");
-    return $consulta->result();
-  }
-
-
-
-
-
-
-
-  //paraclinico1 vista para historial busqueda
-
-  public function get_vistaparaclinico()
-  {
-    $consulta = $this->db->query("
-
-     SELECT *
-     FROM paraclinico");
-
-    return $consulta->result();
-  }
-
-  public function guardar_vistaparaclinico($data)
-  {
-
-    return $this->db->insert('hcs_paraclinico', $data);
-
-    return true;
-  }
-
-  public function detalle_vistaparaclinico_x_doc($documento)
-
-  {
-    $consulta = $this->db->query("SELECT
-                                     *
-      FROM
-      hcs_paraclinico AS hcp
-      WHERE
-      hcp.identificacion = $documento
-
-      ORDER BY hcp.fecha DESC LIMIT 2");
-    return $consulta->result();
-  }
-  
+    // =========================================================================
+    // HISTORIA CLÍNICA PRINCIPAL
+    // =========================================================================
+
+    /**
+     * Obtiene la HC del paciente por cédula.
+     * Solo retorna HCs activas (no soft-deleted).
+     */
+    public function get_historia_cedula($cedula)
+    {
+        return $this->db
+            ->where('deleted_at IS NULL', null, false)
+            ->where('pacDocumento', $cedula)
+            ->get(self::T_HC)
+            ->result();
+    }
+
+    /**
+     * Crea (o recupera) la Historia Clínica de un paciente.
+     * Registra en audit trail como CREATE.
+     */
+    public function create_historia($cedula)
+    {
+        // Buscar el paciente
+        $paciente = $this->db
+            ->get_where('paciente', ['pacDocumento' => $cedula, 'deleted_at IS NULL' => null])
+            ->row_array();
+
+        if (empty($paciente)) {
+            log_message('error', "[MHistoria] create_historia: paciente {$cedula} no encontrado.");
+            return false;
+        }
+
+        $datos = [
+            'pacDocumento' => $cedula,
+            'hcFecha'      => date('Y-m-d H:i:s'),
+        ];
+
+        $id = $this->safe_insert(self::T_HC, $datos);
+
+        if (!$id) {
+            return false;
+        }
+
+        return $this->db->get_where(self::T_HC, ['id_historia' => $id])->result();
+    }
+
+    // =========================================================================
+    // MEDICAMENTOS
+    // =========================================================================
+
+    /**
+     * Guarda un medicamento en la HC.
+     * Audita automáticamente vía safe_insert().
+     */
+    public function guardar_medicamento(array $data)
+    {
+        return $this->safe_insert(self::T_MEDICAMENTO, $data);
+    }
+
+    /**
+     * Actualiza un medicamento existente.
+     * Toma snapshot ANTES, guarda DESPUÉS en auditoria_hc.
+     */
+    public function actualizar_medicamento(array $data, $id_his_med)
+    {
+        return $this->safe_update(self::T_MEDICAMENTO, $data, $id_his_med, 'id_his_med');
+    }
+
+    /**
+     * Elimina lógicamente un medicamento (SoftDelete).
+     * NUNCA borra físicamente. Queda registrado en auditoria_hc.
+     */
+    public function eliminar_medicamento($id_his_med)
+    {
+        return $this->soft_delete(self::T_MEDICAMENTO, $id_his_med, 'id_his_med');
+    }
+
+    /**
+     * Consulta medicamentos activos de una HC.
+     */
+    public function ver_medicamento(array $where = [])
+    {
+        return $this->get_active(self::T_MEDICAMENTO, $where);
+    }
+
+    // =========================================================================
+    // DIAGNÓSTICOS
+    // =========================================================================
+
+    /**
+     * Guarda un diagnóstico CIE-10 en la HC.
+     */
+    public function guardar_diagnostico(array $data)
+    {
+        return $this->safe_insert(self::T_DIAGNOSTICO, $data);
+    }
+
+    /**
+     * Actualiza un diagnóstico.
+     */
+    public function actualizar_diagnostico(array $data, $id_diagnostico)
+    {
+        return $this->safe_update(self::T_DIAGNOSTICO, $data, $id_diagnostico, 'id_diagnostico');
+    }
+
+    /**
+     * Elimina lógicamente un diagnóstico.
+     */
+    public function eliminar_diagnostico($id_diagnostico)
+    {
+        return $this->soft_delete(self::T_DIAGNOSTICO, $id_diagnostico, 'id_diagnostico');
+    }
+
+    /**
+     * Lista diagnósticos activos de una HC.
+     */
+    public function ver_diagnosticos($id_historia)
+    {
+        return $this->get_active(self::T_DIAGNOSTICO, ['historia_idHistoria' => $id_historia]);
+    }
+
+    // =========================================================================
+    // CUPS (Procedimientos)
+    // =========================================================================
+
+    /**
+     * Guarda un CUPS en la HC.
+     */
+    public function guardar_cups(array $data)
+    {
+        return $this->safe_insert(self::T_CUPS, $data);
+    }
+
+    /**
+     * Elimina lógicamente un CUPS de la HC.
+     */
+    public function eliminar_cups($id_historia_cups)
+    {
+        return $this->soft_delete(self::T_CUPS, $id_historia_cups, 'id_historia_cups');
+    }
+
+    /**
+     * Lista CUPS activos de una HC.
+     */
+    public function ver_cups($id_historia)
+    {
+        return $this->get_active(self::T_CUPS, ['historia_idHistoria' => $id_historia]);
+    }
+
+    // =========================================================================
+    // INFORMACIÓN COMPLEMENTARIA
+    // =========================================================================
+
+    /**
+     * Guarda datos adicionales/complementarios de la HC.
+     */
+    public function guardar_adicionales(array $datos_adicionales)
+    {
+        return $this->safe_insert(self::T_COMPLEMENTARIA, $datos_adicionales);
+    }
+
+    /**
+     * Actualiza información complementaria.
+     */
+    public function actualizar_adicionales(array $datos, $id_complementaria)
+    {
+        return $this->safe_update(self::T_COMPLEMENTARIA, $datos, $id_complementaria, 'id_complementaria');
+    }
+
+    // =========================================================================
+    // PARACLÍNICOS (Resultados de laboratorio / imágenes)
+    // =========================================================================
+
+    /**
+     * Importa paraclínicos desde Excel (batch).
+     * Cada fila se audita individualmente.
+     */
+    public function guardar_paraclinico_excel(array $_DATOS_EXCEL)
+    {
+        $insertados = 0;
+        foreach ($_DATOS_EXCEL as $fila) {
+            if ($this->safe_insert(self::T_PARACLINICO, $fila)) {
+                $insertados++;
+            }
+        }
+        return $insertados > 0;
+    }
+
+    /**
+     * Elimina lógicamente un paraclínico.
+     */
+    public function eliminar_paraclinico($id_paraclinico)
+    {
+        return $this->soft_delete(self::T_PARACLINICO, $id_paraclinico, 'id_paraclinico');
+    }
+
+    /**
+     * Lista paraclínicos activos.
+     */
+    public function ver_paraclinicos($id_historia)
+    {
+        return $this->get_active(self::T_PARACLINICO, ['historia_idHistoria' => $id_historia]);
+    }
+
+    // =========================================================================
+    // VISITAS DOMICILIARIAS
+    // =========================================================================
+
+    /**
+     * Importa visitas desde Excel (batch).
+     */
+    public function guardar_visitas_excel(array $_DATOS_EXCEL)
+    {
+        $insertados = 0;
+        foreach ($_DATOS_EXCEL as $fila) {
+            if ($this->safe_insert(self::T_VISITAS, $fila)) {
+                $insertados++;
+            }
+        }
+        return $insertados > 0;
+    }
+
+    /**
+     * Elimina lógicamente una visita.
+     */
+    public function eliminar_visita($id_visita)
+    {
+        return $this->soft_delete(self::T_VISITAS, $id_visita, 'id_visita');
+    }
+
+    /**
+     * Lista visitas activas de un paciente.
+     */
+    public function ver_visitas($id_historia)
+    {
+        return $this->get_active(self::T_VISITAS, ['historia_idHistoria' => $id_historia]);
+    }
+
+    // =========================================================================
+    // AUDITORÍA — Consultas del stack de versiones
+    // =========================================================================
+
+    /**
+     * Retorna el historial completo de cambios de una HC.
+     * Incluye quién cambió qué, cuándo y desde qué IP.
+     *
+     * @param  int $id_historia
+     * @return array
+     */
+    public function get_historial_auditoria($id_historia)
+    {
+        return $this->get_audit_trail(self::T_HC, $id_historia);
+    }
+
+    /**
+     * Retorna el historial de cambios de los medicamentos de una HC.
+     *
+     * @param  int $id_his_med
+     * @return array
+     */
+    public function get_auditoria_medicamento($id_his_med)
+    {
+        return $this->get_audit_trail(self::T_MEDICAMENTO, $id_his_med);
+    }
+
+    /**
+     * Retorna el historial de cambios de los diagnósticos de una HC.
+     *
+     * @param  int $id_diagnostico
+     * @return array
+     */
+    public function get_auditoria_diagnostico($id_diagnostico)
+    {
+        return $this->get_audit_trail(self::T_DIAGNOSTICO, $id_diagnostico);
+    }
+
+    /**
+     * Retorna cómo estaba la HC en una fecha específica (viaje en el tiempo).
+     * Útil para auditorías legales y revisiones médicas retrospectivas.
+     *
+     * @param  int    $id_historia
+     * @param  string $fecha        Y-m-d H:i:s
+     * @return array|null
+     */
+    public function get_hc_en_fecha($id_historia, $fecha)
+    {
+        return $this->get_snapshot_at(self::T_HC, $id_historia, $fecha);
+    }
+
+    // =========================================================================
+    // CONSULTAS HEREDADAS (compatibilidad con código existente)
+    // =========================================================================
+    // Estos métodos mantienen la firma original del modelo anterior
+    // para no romper los controladores existentes.
+
+    /**
+     * Obtiene HCs para impresión (incluye relaciones).
+     * Solo registros activos.
+     */
+    public function get_historia_imprimir($id_historia)
+    {
+        return $this->db->query("
+            SELECT hc.*, p.pacNombre, p.pacApellido, p.pacDocumento
+            FROM hc
+            INNER JOIN paciente p ON p.idPaciente = hc.paciente_idPaciente
+            WHERE hc.id_historia = ?
+              AND hc.deleted_at IS NULL
+        ", [$id_historia])->result();
+    }
+
+    /**
+     * Retorna el listado de HCs de un paciente por cédula.
+     * Usado en historial clínico. Solo activas.
+     */
+    public function listar_historias_paciente($cedula)
+    {
+        return $this->db->query("
+            SELECT hc.*, c.citFecha, p.idProceso, p.proNombre
+            FROM hc
+            INNER JOIN cita c ON c.idCita = hc.cita_idCita
+            INNER JOIN agenda a ON a.idAgenda = c.agenda_idAgenda
+            INNER JOIN proceso p ON p.idProceso = a.proceso_idProceso
+            INNER JOIN paciente pac ON pac.idPaciente = c.paciente_idPaciente
+            WHERE pac.pacDocumento = ?
+              AND hc.deleted_at IS NULL
+              AND c.deleted_at IS NULL
+            ORDER BY c.citFecha DESC
+        ", [$cedula])->result();
+    }
 }
