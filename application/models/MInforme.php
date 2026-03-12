@@ -224,6 +224,109 @@ END AS codigo_trabajo
     return $consulta->result();
   }
 
+  // Método optimizado: IGUAL a exportar_1 pero con filtro Especial Control
+  public function ver_pac_by_fecha_especial_control($fecha1, $fecha2)
+  {
+    $consulta = $this->db->query("
+      SELECT 
+        c.*, pac.*, u.*, esp.espNombre AS tipo_profesional,
+        h.*, tp.*, d.*, m.*, e.*, zr.*, r.*, a.*, b.*, ax.*, p.*, cup.cupNombre,
+        
+      CASE 
+  WHEN esp.espNombre LIKE '%Enfermero%' 
+    AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                        'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+    THEN '890305'
+  ELSE p.N_cups
+END AS N_cups_ajustado,
+
+CASE 
+  WHEN 
+    (CASE 
+      WHEN esp.espNombre LIKE '%Enfermero%' 
+        AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                            'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+        THEN '890305'
+      ELSE p.N_cups
+    END) = '890305' THEN '312'
+  WHEN 
+    (CASE 
+      WHEN esp.espNombre LIKE '%Enfermero%' 
+        AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                            'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+        THEN '890305'
+      ELSE p.N_cups
+    END) = '890301' THEN '328'
+  WHEN 
+    (CASE 
+      WHEN esp.espNombre LIKE '%Enfermero%' 
+        AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                            'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+        THEN '890305'
+      ELSE p.N_cups
+    END) = '890366' THEN '329'
+  WHEN 
+    (CASE 
+      WHEN esp.espNombre LIKE '%Enfermero%' 
+        AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                            'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+        THEN '890305'
+      ELSE p.N_cups
+    END) = '890368' THEN '330'
+  WHEN 
+    (CASE 
+      WHEN esp.espNombre LIKE '%Enfermero%' 
+        AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                            'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+        THEN '890305'
+      ELSE p.N_cups
+    END) = '890306' THEN '333'
+  WHEN 
+    (CASE 
+      WHEN esp.espNombre LIKE '%Enfermero%' 
+        AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                            'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+        THEN '890305'
+      ELSE p.N_cups
+    END) = '890308' THEN '344'
+  WHEN 
+    (CASE 
+      WHEN esp.espNombre LIKE '%Enfermero%' 
+        AND p.proNombre IN ('ESPECIAL CONTROL', 'REFORMULACION', 'TRABAJO SOCIAL', 
+                            'NUTRICIONISTA', 'PSICOLOGIA', 'NEFROLOGIA', 'INTERNISTA', 'FISIOTERAPIA') 
+        THEN '890305'
+      ELSE p.N_cups
+    END) IN ('890311', '890309') THEN '356'
+  ELSE ''
+END AS codigo_trabajo
+
+      FROM cita AS c
+      INNER JOIN hc AS h ON h.cita_idCita = c.idCita
+      INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
+      INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
+      LEFT JOIN brigada AS b ON b.idBrigada = pac.Brigada_idBrigada
+      INNER JOIN tipo_documento AS tp ON tp.idTipDocumento = pac.pacTipDocumento
+      INNER JOIN zona_residencial AS zr ON zr.zona_residencial = pac.id_zona_residencia
+      INNER JOIN departamento AS d ON d.idDepartamento = pac.depto_residencia
+      INNER JOIN municipio AS m ON m.idMunicipio = pac.municipio_residencia
+      INNER JOIN regimen AS r ON r.idRegimen = pac.regimen_idRegimen
+      INNER JOIN agenda AS a ON c.agenda_idAgenda = a.idAgenda
+      LEFT JOIN auxiliar AS ax ON ax.idauxiliar = pac.auxiliar_idauxiliar
+      INNER JOIN proceso AS p ON a.proceso_idProceso = p.idProceso
+      INNER JOIN usuario AS u ON a.usuario_idUsuario = u.idUsuario
+      LEFT JOIN especialidad AS esp ON esp.idEspecialidad = u.especialidad_idEspecialidad
+      LEFT JOIN cups_contratado AS cc ON cc.id_cups_contrato = c.idCupsContratado
+      LEFT JOIN cups AS cup ON cup.idCups = cc.cups_idCups
+      WHERE c.citFecha BETWEEN '" . $fecha1 . "' AND '" . $fecha2 . "'
+        AND (
+          p.proNombre = 'ESPECIAL CONTROL'
+          OR esp.espNombre IN ('Medicina Interna', 'Internista', 'Nefrología', 'Nefrólogo', 'Enfermería Jefe')
+        )
+    ");
+
+    return $consulta->result();
+  }
+
   // Método 3: por fecha (exportar_1)
   public function ver_pac_by_fecha_y_brigada($fecha1, $fecha2)
   {

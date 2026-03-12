@@ -61,8 +61,8 @@ public function informe1()
         $fecha1 = $this->input->post('fecha');
         $fecha2 = $this->input->post('fecha1');
     
-        // Consultar solo IPS con filtro de ESPECIAL CONTROL
-        $data = $this->MInforme->ver_pac_by_fecha($fecha1, $fecha2);
+        // Usar la misma consulta rápida de exportar_1 con filtro
+        $data = $this->MInforme->ver_pac_by_fecha_especial_control($fecha1, $fecha2);
     
         // Headers para Excel con soporte UTF-8 completo
         header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
