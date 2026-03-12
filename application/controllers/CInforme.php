@@ -9,7 +9,7 @@ class CInforme extends CI_Controller
         parent::__construct();
         $this->load->helper("url");
         $this->load->model("MInforme");
-		$this->load->model("MBrigada");
+$this->load->model("MBrigada");
     }
 
     public function index()
@@ -20,7 +20,7 @@ class CInforme extends CI_Controller
         $this->load->view("CPlantilla/VHead", $data);
 
         $this->load->view("CPlantilla/VBarraMenu");
-		$datos["brigada"] = $this->MBrigada->ver();
+$datos["brigada"] = $this->MBrigada->ver();
 
         $this->load->view("CInforme/VConsultar.php", $datos);
 
@@ -54,367 +54,163 @@ public function informe1()
         $this->load->view("CPlantilla/VFooter");
     }
 
-
     public function exportar() {
-        // create file name
-        $filename = date('Y-m-d',time()).'.xls';  
-
+        // Crear nombre del archivo
+        $filename = 'Informe_1552_' . date('Y-m-d', time()) . '.xls';  
+    
         $fecha1 = $this->input->post('fecha');
         $fecha2 = $this->input->post('fecha1');
+    
+        // Consultar solo IPS con filtro de ESPECIAL CONTROL
         $data = $this->MInforme->ver_pac_by_fecha($fecha1, $fecha2);
-
-
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Content-type: application/x-msdownload");
+    
+        // Headers para Excel con soporte UTF-8 completo
+        header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
         header("Content-Disposition: attachment; filename=$filename");
         header("Pragma: no-cache");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-
-
-        echo "<table border=1";
+        header("Expires: 0");
+        
+        // BOM UTF-8 - CRÍTICO para que Excel detecte correctamente acentos y ñ
+        echo "\xEF\xBB\xBF";
+    
+        // Inicio de tabla HTML con meta UTF-8
+        echo '<html><head><meta charset="UTF-8"></head><body>';
+        echo '<table border="1">';
+        
         if (sizeof($data) > 0) {
-            echo "<tr >";
-            echo "<td>Primer Nombre</td>";
-            echo "<td>Segundo Nombre</td>";
-            echo "<td>Primer Apellido</td>";
-            echo "<td>Segundo Apellido</td>";
-            echo "<td>Tipo Id</td>";
-            echo "<td>Numero de Identificacion</td>";
-            echo "<td>Fecha de Nacimiento</td>";
-            echo "<td>Edad</td>";
-            echo "<td>Sexo</td>";
-            echo "<td>Genero</td>";
-            echo "<td>Grupo Etnico</td>";
-            echo "<td>Grupo Poblacion</td>";
-            echo "<td>Orientacion Sexual</td>";
-            echo "<td>Tipos de Discapacidad</td>";
-            echo "<td>Codigo Ocupacion</td>";
-            echo "<td>Escolaridad</td>";
-            echo "<td>Brigada</td>";
-
-            echo "<td>Codigo DANE Municipio de Residencia</td>";
-            echo "<td>Descripcion Municipio de Residencia</td>";
-            echo "<td>Zona</td>";
-            echo "<td>Direccion de Residencia</td>";
-
-            echo "<td>Numero de Telefono</td>";
-
-            echo "<td>Codigo Habilitacion IPS de Atencion</td>";
-            echo "<td>Nombre IPS Atencion</td>";
-            echo "<td>Fecha de Ingreso al Programa</td>";
-            echo "<td>Diagnostico HTA</td>";
-            echo "<td>Fecha Diagnostico HTA</td>";
-            echo "<td>Diagnostico DM</td>";
-            echo "<td>Fecha Diagnostico DM</td>";
-            echo "<td>Tipo de Diabetes</td>";
-            echo "<td>Diagnostico EPOC</td>";
-            echo "<td>Fecha Diagnostico de EPOC</td>";
-            echo "<td>Diagnostico ERC</td>";
-            echo "<td>Fecha Diagnostico ERC</td>";
-            echo "<td>Dx Enfermedad Cardiaca Isquemica</td>";
-            echo "<td>Dx Enfermedad Cerebrovascular</td>";
-            echo "<td>Dx Enfermedad Arterial Periferica</td>";
-            echo "<td>Dx Insuficiencia Cardiaca</td>";
-            echo "<td>Dx Retinopatia</td>";
-            echo "<td>Dx Aterosclerosis</td>";
-            echo "<td>Discapacidad</td>";
-            echo "<td>Habito Tabaquico</td>";
-            echo "<td>Cocina con Leña</td>";
-            echo "<td>Fecha de Control</td>";
-            echo "<td>Peso (kg)</td>";
-            echo "<td>Talla (cms)</td>";
-            echo "<td>IMC</td>";
-            echo "<td>Perimetro de Cintura</td>";
-            echo "<td>Presion Arterial Sistolica</td>";
-            echo "<td>Presion Arterial Diastolica</td>";
-            ///////////////////////////////////////////
-            echo "<td>Colesterol Total</td>";
-            echo "<td>Fecha Colesterol Total</td>";
-            echo "<td>Colesterol HDL</td>";
-            echo "<td>Fecha Colesterol HDL</td>";
-            echo "<td>Colesterol LDL</td>";
-            echo "<td>Fecha Colesterol LDL</td>";
-            echo "<td>Trigliceridos</td>";
-            echo "<td>Fecha Trigliceridos</td>";
-            echo "<td>Hemoglobina Glicosilada</td>";
-            echo "<td>Fecha Hemoglobina Glicosilada</td>";
-            echo "<td>Creatinina Serica N 1</td>";
-            echo "<td>Fecha Creatinina Serica N 1</td>";
-            echo "<td>Creatinina Serica N 2</td>";
-            echo "<td>Fecha Creatinina Serica N 2</td>";
-            echo "<td>Creatinina Serica N 3</td>";
-            echo "<td>Fecha Creatinina Serica N 3</td>";
-            echo "<td>Albuminuria/Creatinuria N 1</td>";
-            echo "<td>Fecha Cociente Albuminuria/Creatinuria N 1</td>";
-            echo "<td>Albuminuria/Creatinuria N 2</td>";
-            echo "<td>Fecha Cociente Albuminuria/Creatinuria N 2</td>";
-            echo "<td>Albuminuria/Creatinuria N 3</td>";
-            echo "<td>Fecha Cociente Albuminuria/Creatinuria N 3</td>";
-            echo "<td>Uroanalsis</td>";
-            echo "<td>Fecha Uroanalisis</td>";
-            echo "<td>TFG COCKCROFT-GAULT N 1</td>";
-            echo "<td>TFG COCKCROFT-GAULT N 2</td>";
-            echo "<td>TFG COCKCROFT-GAULT N 3</td>";
-            echo "<td>Albuminuria</td>";
-            echo "<td>Fecha Albuminuria</td>";
-            echo "<td>Estadio ERC</td>";
-            echo "<td>Paratohormona (PTH)</td>";
-            echo "<td>Fecha PTH</td>";
-            echo "<td>Hemoglobina</td>";
-            echo "<td>Fecha hemoglobina</td>";
-            echo "<td>Albumina Serica</td>";
-            echo "<td>Fecha Albumina</td>";
-            echo "<td>Fosforo</td>";
-            echo "<td>Fecha Fosforo</td>";
-            echo "<td>Paciente Recibe IECA</td>";
-            echo "<td>Paciente Recibe ARA</td>";
-            echo "<td>Paciente Recibe Insulina</td>";
-            echo "<td>Adherencia al Tratamiento (Test de Morinsky)</td>";
-            echo "<td>Clasificacion del Riesgo Cardiovascular</td>";
-            echo "<td>Clasificacion del Estado Metabolico</td>";
-
-            echo "<td>Novedades</td>";
-
-            echo "<td>Fecha de Muerte</td>";
-            echo "<td>Fecha de Observacion</td>";
-            echo "<td>Observacion</td>";
-            echo "<td>Municipio Atencion</td>";
-            echo "<td>ESTADIO ERC CKD EPI</td>";
-            echo "<td>CRUCE NOVEDAD 2</td>";
-            echo "<td>OBSERVACION</td>";
-            echo "<td>Hierro Serico</td>";
-            echo "<td>Fecha Hierro Serico</td>";
-            echo "<td>BUN</td>";
-            echo "<td>Fecha BUN</td>";
-            echo "<td>Potasio Serico</td>";
-            echo "<td>Fecha Potasio Serico</td>";
-            echo "<td>Proteinuria Orina</td>";
-            echo "<td>Fecha Proteinuria Orina</td>";
-            echo "<td>Sodio en Suero</td>";
-            echo "<td>Fecha Sodio en Suero</td>";
-            echo "<td>TSH Ultrasensible</td>";
-            echo "<td>Fecha TSH Ultrasensible</td>";
-            echo "<td>Transferrina</td>";
-            echo "<td>Fecha Transferrina</td>";
-            echo "<td>Calcio Sangre</td>";
-            echo "<td>Fecha Calcio Sangre</td>";
-            echo "<td>Acido Urico</td>";
-            echo "<td>Fecha Acido Urico</td>";
-            echo "<td>Fosfatasa</td>";
-            echo "<td>Fecha Fosfatasa</td>";
-            echo "<td>Hematocrito</td>";
-            echo "<td>Fecha Hematocrito</td>";
-            echo "<td>Fecha Uroanalisis</td>";
-            echo "<td>Glucosa</td>";
-            echo "<td>Fecha Glucosa</td>";
-            echo "<td>Creatinuria en orina</td>";
-            echo "<td>Fecha Creatinuria en orina</td>";
-            echo "<td>Cups</td>";
-            echo "<td>BRIGADA</td>";
-            echo "<td>ZONA</td>";
-            echo "<td>AUXILIAR</td>";
-            echo "<td>Contrato</td>";
-            echo "<td>AR</td>";
-			echo "<td>TIPO DE CONSULTA</td>";
-           
-            echo "<td>FECHA ACTUAL</td>";
-            echo "<td>FECHA FINAL</td>";
-			echo "<td>MEDICO</td>";
-            echo "<td>APELLIDO</td>";
-
-            echo "<td>Tipo Profesional</td>";
-            echo "<td>Codigo Trabajo</td>";
-
-            echo "<td>ID_AUXILIAR</td>";
-            echo "<td>AUXILIAR</td>";
-			 echo "<td>PROGRAMADO</td>";
+            // Encabezados de tabla
+            echo "<tr>";
+            echo "<td><b>Primer Nombre</b></td>";
+            echo "<td><b>Segundo Nombre</b></td>";
+            echo "<td><b>Primer Apellido</b></td>";
+            echo "<td><b>Segundo Apellido</b></td>";
+            echo "<td><b>Tipo Documento</b></td>";
+            echo "<td><b>Numero de Identificacion</b></td>";
+            echo "<td><b>Fecha de Nacimiento</b></td>";
+            echo "<td><b>Direccion</b></td>";
+            echo "<td><b>Edad</b></td>";
+            echo "<td><b>TALLA</b></td>";
+            echo "<td><b>PESO</b></td>";
+            echo "<td><b>IMC</b></td>";
+            echo "<td><b>PERIMETRO ABDOMINAL</b></td>";
+            echo "<td><b>PRESIÓN ARTERIAL SISTÓLICA</b></td>";
+            echo "<td><b>PRESIÓN ARTERIAL DIASTÓLICA</b></td>";
+            echo "<td><b>TASA DE FILTRACIÓN GLOMERULAR CKD-EPI</b></td>";
+            echo "<td><b>TASA DE FILTRACIÓN GLOMERULAR Cockcroft-Gault</b></td>";
+            echo "<td><b>HIPERTENSIÓN ARTERIAL</b></td>";
+            echo "<td><b>DIABETES MELLITUS</b></td>";
+            echo "<td><b>CLASIFICACIÓN HTA</b></td>";
+            echo "<td><b>CLASIFICACIÓN DM</b></td>";
+            echo "<td><b>CLASIFICACIÓN ERC ESTADO</b></td>";
+            echo "<td><b>CATEGORÍA DE ALBUMINURIA PERSISTENTE</b></td>";
+            echo "<td><b>CLASIFICACIÓN ESTADO METABÓLICO</b></td>";
+            echo "<td><b>CLASIFICACIÓN RCV</b></td>";
+            echo "<td><b>Sexo</b></td>";
+            echo "<td><b>Genero</b></td>";
+            echo "<td><b>Departamento Afiliado</b></td>";
+            echo "<td><b>Municipio Afiliado</b></td>";
+            echo "<td><b>Telefono</b></td>";
+            echo "<td><b>Fecha Solicitud Cita</b></td>";
+            echo "<td><b>Fecha en que el usuario solicita le sea asignada la cita (fecha deseada)</b></td>";
+            echo "<td><b>Fecha para la cual se asigna la cita</b></td>";
+            echo "<td><b>Cups</b></td>";
+            echo "<td><b>Nombre del CUPS / Examen</b></td>";
+            echo "<td><b>Zona</b></td>";
+echo "<td><b>Brigada</b></td>";
+            echo "<td><b>Departamento IPS</b></td>";
+            echo "<td><b>NIT</b></td>";
+            echo "<td><b>Codigo Habilitacion</b></td>";
+            echo "<td><b>Razon Social de Institución prestadora de servicios</b></td>";
+            echo "<td><b>Servicio Solicitado</b></td>";
+            echo "<td><b>Regimen</b></td>";
+            echo "<td><b>Fecha apertura hc</b></td>";
+            echo "<td><b>Fecha cierre hc</b></td>";
+            echo "<td><b>Medico</b></td>";
+            echo "<td><b>AUX</b></td>";
+            echo "<td></td>";
+            echo "<td><b>Tipo Profesional</b></td>";
+            echo "<td><b>Codigo Trabajo</b></td>";
             echo "</tr>"; 
+            
             echo "<tbody>";
             foreach ($data as $d) {
+                // Calcular edad
                 list($anio, $mes, $dia) = explode("-", $d->pacFecNacimiento);
                 $anio_dif = date("Y") - $anio;
                 $mes_dif = date("m") - $mes;
                 $dia_dif = date("d") - $dia;
-
-                if($d->pacSexo == 'M'){
-                    $sexo = 'Hombre';
-                }else{
-                    $sexo = 'Mujer';
-                } 
-
+    
                 if ($dia_dif < 0 || $mes_dif < 0) {
                     $anio_dif--;
-                            //return $anio_dif;
                 }
+                
+                $sexo = ($d->pacSexo == 'M') ? 'Hombre' : 'Mujer';
+                
+                // Helper function para valores por defecto
+                $getValue = function($value) {
+                    return (isset($value) && $value != '' && $value != null) ? $value : 'sin dato';
+                };
+    
                 echo "<tr>";
-                echo "<td>" . $d->pacNombre . "</td>";
-                echo "<td>" . $d->pacNombre2 . "</td>";
-                echo "<td>" . $d->pacApellido . "</td>";
-                echo "<td>" . $d->pacApellido2 . "</td>";
+                echo "<td>" . mb_strtoupper($d->pacNombre, 'UTF-8') . "</td>";
+                echo "<td>" . mb_strtoupper($d->pacNombre2, 'UTF-8') . "</td>";
+                echo "<td>" . mb_strtoupper($d->pacApellido, 'UTF-8') . "</td>";
+                echo "<td>" . mb_strtoupper($d->pacApellido2, 'UTF-8') . "</td>";
                 echo "<td>" . $d->nom_abreviacion . "</td>";
                 echo "<td>" . $d->pacDocumento . "</td>";
                 echo "<td>" . $d->pacFecNacimiento . "</td>";
-                echo "<td>" . $anio_dif ."</td>";
-                echo "<td>" . $sexo ."</td>";
-                echo "<td>" . $d->pacSexo . "</td>";
-                echo "<td>Grupo Etnico</td>";
-                echo "<td>Grupo Poblacion</td>";
-                echo "<td>Orientacion Sexual</td>";
-                echo "<td>Tipos de Discapacidad</td>";
-                echo "<td>" . $d->ocuCodigo . "</td>";
-                echo "<td>" . $d->escNombre . "</td>";
-                echo "<td>" . $d->briNombre . "</td>";
-                echo "<td>Codigo DANE Municipio de Residencia</td>";
-                echo "<td>" . $d->municipio_residencia . "</td>";
-                echo "<td>" . $d->zonNombre . "</td>";
                 echo "<td>" . $d->pacDireccion . "</td>";
-                echo "<td>" . $d->pacTelefono . "</td>";
-                echo "<td>". $d->empCodigo ."</td>";
-                echo "<td>" . $d->empNombre . "</td>";
-                echo "<td>Fecha de Ingreso al Programa </td>";
-                echo "<td>" . $d->hcHipertensionArterialPersonal . "</td>";
-                echo "<td>" . $d->citFecha . "</td>";
-                echo "<td>" . $d->hcDiabetesMellitusPersonal . "</td>";
-                echo "<td>" . $d->citFecha . "</td>";
-                echo "<td>" . $d->hcClasificacionDm . "</td>";
-                echo "<td>Diagnostico EPOC</td>";
-                echo "<td>Fecha Diagnostico EPOC</td>";
-                echo "<td>" . $d->hcClasificacionErcEstado . "</td>";
-                echo "<td>" . $d->citFecha . "</td>";
-                echo "<td>Dx Enfermedad Cardiaca Isquemica</td>";
-                echo "<td>Dx Enfermedad Cerebrovascular</td>";
-                echo "<td>Dx Enfermedad Arterial Periferica</td>";
-                echo "<td>Dx Insuficiencia Cardiaca</td>";
-                echo "<td>Dx Retinopatia</td>";
-                echo "<td>Dx Aterosclerosis</td>";
-                echo "<td>Discapacidad</td>";
-                echo "<td>" . $d->hcTabaquismo . "</td>";
-                echo "<td>Cocina con Leña</td>";
-                echo "<td>" . $d->citFecha . "</td>";
-                echo "<td>" . $d->hcPeso . "</td>";
-                echo "<td>" . $d->hcTalla . "</td>";
-                echo "<td>" . $d->hcIMC . "</td>";
-                echo "<td>" . $d->hcPerimetroAbdominal . "</td>";
-                echo "<td>" . $d->hcPresionArterialSistolicaSentadoPie . "</td>";
-                echo "<td>" . $d->hcPresionArterialDistolicaSentadoPie . "</td>";
-
-                echo "<td>Colesterol Total</td>";
-                echo "<td>Fecha Colesterol Total</td>";
-                echo "<td>Colesterol HDL</td>";
-                echo "<td>Fecha Colesterol HDL</td>";
-                echo "<td>Colesterol LDL</td>";
-                echo "<td>Fecha Colesterol LDL</td>";
-                echo "<td>Trigliceridos</td>";
-                echo "<td>Fecha Trigliceridos</td>";
-                echo "<td>Hemoglobina Glicosilada</td>";
-                echo "<td>Fecha Hemoglobina Glicosilada</td>";
-                echo "<td>Creatinina Serica N 1</td>";
-                echo "<td>Fecha Creatinina Serica N 1</td>";
-                echo "<td>Creatinina Serica N 2</td>";
-                echo "<td>Fecha Creatinina Serica N 2</td>";
-                echo "<td>Creatinina Serica N 3</td>";
-                echo "<td>Fecha Creatinina Serica N 3</td>";
-                echo "<td>Albuminuria/Creatinuria N 1</td>";
-                echo "<td>Fecha Cociente Albuminuria/Creatinuria N 1</td>";
-                echo "<td>Albuminuria/Creatinuria N 2</td>";
-                echo "<td>Fecha Cociente Albuminuria/Creatinuria N 2</td>";
-                echo "<td>Albuminuria/Creatinuria N 3</td>";
-                echo "<td>Fecha Cociente Albuminuria/Creatinuria N 3</td>";
-                echo "<td>Uroanalsis</td>";
-                echo "<td>Fecha Uroanalisis</td>";
-                echo "<td>" . $d->tasa_filtracion_glomerular_gockcroft_gault . "</td>";
-                echo "<td>TFG COCKCROFT-GAULT N 2</td>";
-                echo "<td>TFG COCKCROFT-GAULT N 3</td>";
-                echo "<td>Albuminuria</td>";
-                echo "<td>Fecha Albuminuria</td>";
-                echo "<td>Estadio ERC</td>";
-                echo "<td>Paratohormona (PTH)</td>";
-                echo "<td>Fecha PTH</td>";
-                echo "<td>Hemoglobina</td>";
-                echo "<td>Fecha hemoglobina</td>";
-                echo "<td>Albumina Serica</td>";
-                echo "<td>Fecha Albumina</td>";
-                echo "<td>Fosforo</td>";
-                echo "<td>Fecha Fosforo</td>";
-                echo "<td>Paciente Recibe IECA</td>";
-                echo "<td>Paciente Recibe ARA</td>";
-                echo "<td>" . $d->insulina_requiriente . "</td>";
-                echo "<td>" . $d->adherente . "</td>";
-                echo "<td>" . $d->hcClasificacionRcv . "</td>";
-                echo "<td>" . $d->hcClasificacionEstadoMetabolico . "</td>";
-				echo "<td>" . $d->tipo_novedad . "</td>";
-                echo "<td>Fecha de Muerte</td>";
-                echo "<td>Fecha de Observacion</td>";
-                echo "<td>" . $d->pacObservacion . "</td>";
-                echo "<td>Municipio Atencion</td>";
-                echo "<td>" . $d->hcClasificacionErcCategoriaAmbulatoriaPersistente . "</td>";
-                echo "<td>CRUCE NOVEDAD 2</td>";
-                echo "<td>OBSERVACION</td>";
-                echo "<td>Hierro Serico</td>";
-                echo "<td>Fecha Hierro Serico</td>";
-                echo "<td>BUN</td>";
-                echo "<td>Fecha BUN</td>";
-                echo "<td>Potasio Serico</td>";
-                echo "<td>Fecha Potasio Serico</td>";
-                echo "<td>Proteinuria Orina</td>";
-                echo "<td>Fecha Proteinuria Orina</td>";
-                echo "<td>Sodio en Suero</td>";
-                echo "<td>Fecha Sodio en Suero</td>";
-                echo "<td>TSH Ultrasensible</td>";
-                echo "<td>Fecha TSH Ultrasensible</td>";
-                echo "<td>Transferrina</td>";
-                echo "<td>Fecha Transferrina</td>";
-                echo "<td>Calcio Sangre</td>";
-                echo "<td>Fecha Calcio Sangre</td>";
-                echo "<td>Acido Urico</td>";
-                echo "<td>Fecha Acido Urico</td>";
-                echo "<td>Fosfatasa</td>";
-                echo "<td>Fecha Fosfatasa</td>";
-                echo "<td>Hematocrito</td>";
-                echo "<td>Fecha Hematocrito</td>";
-                echo "<td>Fecha Uroanalisis</td>";
-                echo "<td>Glucosa</td>";
-                echo "<td>Fecha Glucosa</td>";
-                echo "<td>Creatinuria en orina</td>";
-                echo "<td>Fecha Creatinuria en orina</td>";
-                echo "<td>" . $d->briNombre . "</td>";   
+                echo "<td>" . $anio_dif . "</td>";
+                echo "<td>" . str_replace('.', '', $d->hcTalla) . "</td>";
+                echo "<td>" . $getValue($d->hcPeso) . "</td>";
+                echo "<td>" . $getValue($d->hcIMC) . "</td>";
+                echo "<td>" . $getValue($d->hcPerimetroAbdominal) . "</td>";
+                echo "<td>" . $getValue($d->hcPresionArterialSistolicaSentadoPie) . "</td>";
+                echo "<td>" . $getValue($d->hcPresionArterialDistolicaSentadoPie) . "</td>";
+                echo "<td>" . $getValue($d->tasa_filtracion_glomerular_ckd_epi) . "</td>";
+                echo "<td>" . $getValue($d->tasa_filtracion_glomerular_gockcroft_gault) . "</td>";
+                echo "<td>" . $getValue($d->hcHipertensionArterialPersonal) . "</td>";
+                echo "<td>" . $getValue($d->hcDiabetesMellitusPersonal) . "</td>";
+                echo "<td>" . $getValue($d->hcClasificacionHta) . "</td>";
+                echo "<td>" . $getValue($d->hcClasificacionDm) . "</td>";
+                echo "<td>" . $getValue($d->hcClasificacionErcEstado) . "</td>";
+                echo "<td>" . $getValue($d->hcClasificacionErcCategoriaAmbulatoriaPersistente) . "</td>";
+                echo "<td>" . $getValue($d->hcClasificacionEstadoMetabolico) . "</td>";
+                echo "<td>" . $getValue($d->hcClasificacionRcv) . "</td>";
+                echo "<td>" . $sexo . "</td>";
+                echo "<td>" . $d->pacSexo . "</td>";
+                echo "<td>" . $d->depNombre . "</td>";
+                echo "<td>" . $d->munNombre . "</td>";
+                echo "<td>" . $d->pacTelefono . "</td>";  
+                echo "<td>" . $d->citFecha . "</td>";     
+                echo "<td>" . $d->citFechaDeseada . "</td>";  
+                echo "<td>" . $d->citFechaInicio . "</td>";
+                echo "<td>" . $d->N_cups_ajustado . "</td>";
+                echo "<td>" . ($d->cupNombre ?? 'N/A') . "</td>";
                 echo "<td>" . $d->zonNombre . "</td>";
-                echo "<td>" . $d->usu_creo_cita . "</td>";
-                echo "<td>" . $d->proceso_idProceso . "</td>";
-                echo "<td>AR</td>";
-				echo "<td>" . $d->cupNombre . "</td>";
-
-
-
+                echo "<td>" . $d->briNombre . "</td>";   
+                echo "<td>Cauca</td>";
+                echo "<td>900817959</td>";  
+                echo "<td>190010882401</td>";
+                echo "<td>Fundacion Nacer Para Vivir IPS</td>";
+                echo "<td>" . $d->proNombre . "</td>";
+                echo "<td>" . $d->regNombre . "</td>";   
+                echo "<td>" . $d->fecha_actual . "</td>";
+                echo "<td>" . $d->fecha_final . "</td>";
+                echo "<td>" . $d->usuNombre . " " . $d->usuApellido . "</td>";   
+                echo "<td>" . $d->idauxiliar . " " . $d->nombreauxiliar . "</td>";
+                echo "<td>" . $d->usu_creo_cita . " " . $d->usuNombre . "</td>";
                 echo "<td>" . $d->tipo_profesional . "</td>";
                 echo "<td>" . $d->codigo_trabajo . "</td>";
-
-             
-                echo "<td>" . $d->fecha_actual . "</td>"; 
-				echo "<td>" . $d->fecha_final. "</td>";
-				echo "<td>Mientras sale</td>";
-               echo "<td>Mientras sale</td>";
-                echo "<td>" . $d->idauxiliar . "</td>";
-                echo "<td>" . $d->idauxiliar . " " . $d->nombreauxiliar . "</td>";	
-echo "<td>";
-
-					if ($d->usu_creo_cita == $d->idUsuario) {
-						echo $d->usu_creo_cita . " - " . $d->usuNombre . " " . $d->usuApellido;
-					} else {
-						echo $d->usu_creo_cita . " - No disponible"; // Muestra el ID y un mensaje si no coinciden
-					}
-
-				echo "</td>";				
                 echo "</tr>";
             }
             echo "</tbody>";
         } else {
-            echo "<tr><td>No se encontro ningun procedimiento de facturacion pendiente para este usuario.</td></tr>";
+            echo "<tr><td colspan='49'>No se encontró ningún registro para el rango de fechas seleccionado.</td></tr>";
         }
-
+    
         echo "</table>";
-
+        echo '</body></html>';
     }
 
     public function exportar_1() {
@@ -528,7 +324,7 @@ echo "<td>";
                 echo "<td>" . $d->fecha_actual . "</td>";
                 echo "<td>" . $d->fecha_final . "</td>";
                 echo "<td>" . $d->usuNombre . " " . $d->usuApellido . "</td>";   
-                echo "<td>" . $d->idauxiliar . " " . $d->nombreauxiliar . "</td>";	
+                echo "<td>" . $d->idauxiliar . " " . $d->nombreauxiliar . "</td>";
                 echo "<td> " . $d->usu_creo_cita . " " . $d->usuNombre . " </td>";
                 
                 echo "<td>" . $d->tipo_profesional . "</td>";
@@ -928,5 +724,3 @@ public function exportar_2() {
 }
 
 }
-
-
