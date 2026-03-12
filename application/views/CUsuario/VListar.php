@@ -1,3 +1,41 @@
+<!-- ═══ Google-style loader — IPS Cajibio (Usuarios) ════════════════════ -->
+<style>
+#ips-topbar-u {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 0%; z-index: 99999;
+    background: linear-gradient(90deg, #2a327d 0%, #4e5fc7 40%, #166a28 70%, #2a327d 100%);
+    background-size: 300% 100%;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 10px rgba(42,50,125,0.7);
+    animation: ips-shine-u 1.4s linear infinite;
+    display: none;
+}
+@keyframes ips-shine-u {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+@keyframes ips-shimmer-u {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+}
+#user-skeleton-overlay {
+    position: absolute; top: 0; left: 0;
+    width: 100%; z-index: 10;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0 0 4px 4px;
+}
+#user-skeleton-overlay table { margin-bottom: 0; }
+.uph {
+    height: 13px; border-radius: 6px; display: inline-block;
+    background: linear-gradient(90deg, #e8ecf0 25%, #f8f9fa 50%, #e8ecf0 75%);
+    background-size: 600px 100%;
+    animation: ips-shimmer-u 1.4s ease-in-out infinite;
+}
+</style>
+
+<div id="ips-topbar-u"></div>
+
 <!-- This is the view where I list and search for the different users  -->
 <div class="container text-white">
     <!-- Button trigger modal -->
@@ -95,6 +133,36 @@
             </div>
         </div>
     </div>
+    <div style="position:relative">
+    <!-- ── Skeleton overlay ── -->
+    <div id="user-skeleton-overlay">
+        <table class="table table-bordered bg-light mb-0" style="width:100%">
+            <thead class="thead-light">
+                <tr>
+                    <th>Resolución</th><th>Identificación</th><th>Nombre</th>
+                    <th>Área</th><th>Estado</th><th>Actualizar</th><th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $docW  = [62,78,55,70,65,80,58];
+                $nomW  = [140,120,160,135,150,125,145];
+                $areaW = [80,95,70,88,75,90,72];
+                for ($i = 0; $i < 7; $i++): ?>
+                <tr>
+                    <td><span class="uph" style="width:45px"></span></td>
+                    <td><span class="uph" style="width:<?= $docW[$i] ?>px"></span></td>
+                    <td><span class="uph" style="width:<?= $nomW[$i] ?>px"></span></td>
+                    <td><span class="uph" style="width:<?= $areaW[$i] ?>px"></span></td>
+                    <td><span class="uph" style="width:50px"></span></td>
+                    <td><span class="uph" style="width:80px;height:28px;border-radius:4px;background:linear-gradient(90deg,#d1ecf1 25%,#eaf6f8 50%,#d1ecf1 75%);background-size:600px 100%;animation:ips-shimmer-u 1.4s ease-in-out infinite;"></span></td>
+                    <td><span class="uph" style="width:65px;height:28px;border-radius:4px;background:linear-gradient(90deg,#f8d7da 25%,#fde8e9 50%,#f8d7da 75%);background-size:600px 100%;animation:ips-shimmer-u 1.4s ease-in-out infinite;"></span></td>
+                </tr>
+                <?php endfor; ?>
+            </tbody>
+        </table>
+    </div><!-- /#user-skeleton-overlay -->
+
     <div class="table-responsive">
         <table id="example" class="table table-bordered bg-light" style="width:100%">
             <thead>
@@ -149,8 +217,9 @@
             </tfoot>
         </table>
     </div>
+    </div><!-- /.table-responsive -->
+    </div><!-- /position:relative wrapper -->
 </div>
-
 
 <style>#prueba:hover {
 color: #F21414;
@@ -176,6 +245,29 @@ color: #F21414;
         img.src = URL.createObjectURL(uploadFile);
     }
 
+
+    // ── Barra de progreso ─────────────────────────────────────────────────
+    var $barU = $('#ips-topbar-u'), barTimerU;
+
+    function barStartU() {
+        clearTimeout(barTimerU);
+        $barU.stop(true).css({ width: '0%', display: 'block' }).animate({ width: '75%' }, 600);
+    }
+    function barDoneU() {
+        $barU.animate({ width: '100%' }, 200, function () {
+            var self = $(this);
+            barTimerU = setTimeout(function () { self.fadeOut(300).css('width','0%'); }, 250);
+        });
+    }
+
+    $(document).ready(function () {
+        barStartU();
+        // Espera a que VFooter inicialice #example para ocultar el skeleton
+        $('#example').one('init.dt', function () {
+            barDoneU();
+            $('#user-skeleton-overlay').fadeOut(250);
+        });
+    });
 
     function eliminar(id) {
         if (confirm('¿Desea eliminar el registro?')) {
