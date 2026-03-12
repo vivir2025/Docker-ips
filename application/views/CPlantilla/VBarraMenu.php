@@ -167,10 +167,7 @@ if (!$this->session->userdata('login')) {
                         <a  id=miBoton  class="dropdown-item" href="<?= site_url('CEmpresa') ?>">Admin. EPS</a>
                         <a  id=miBoton class="dropdown-item" href="<?= site_url('CContrato') ?>">Admin. Contrato</a>
                         <a  id=miBoton class="dropdown-item" href="<?= site_url('CHistoria/upload_paraclinico') ?>">Admin. Paraclinico</a>
-                        <a  id=miBoton class="dropdown-item" href="<?= site_url('CHistoria/upload_Visitas') ?>">Admin. Visitas</a>
-						<a  id=miBoton class="dropdown-item" href="https://lookerstudio.google.com/s/uVld-qx6KSo" target="_blank">Dashboard Visitas</a>
-						<a  id=miBoton class="dropdown-item" href="https://lookerstudio.google.com/s/plQT6uUJUfE" target="_blank">Mapa de Calor</a>
-
+                        
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -198,8 +195,6 @@ if (!$this->session->userdata('login')) {
                     </a>
                     
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a  id=miBoton  class="dropdown-item" href="<?= site_url('CBackup') ?>">Backup Paciente</a>
-                        <a  id=miBoton  class="dropdown-item" href="<?= site_url('CBackup/backup_pacActualizado') ?>">Backup Actualización Paciente</a>
                         <a  id=miBoton class="dropdown-item" href="<?= site_url('CBackup/backup_hc') ?>">Backup HC</a>
                     </div>
                 </li>

@@ -3420,111 +3420,175 @@ public function upload_paraclinico()
 // This is the logic for uploading the laboratories, home visits and disbursements in Excel format ...
 public function importar_excel1()
 {
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+    ob_start();
 
-    $path = 'archivo/';
-    include APPPATH . "/third_party/PHPExcel.php";
-    $config['upload_path'] = $path;
-    $config['allowed_types'] = 'xlsx|xls|csv';
-    $config['remove_spaces'] = true;
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
 
+    $response = ['success' => false, 'message' => '', 'debug' => ''];
 
-    $this->load->library('upload', $config);
-        $this->upload->initialize($config); // uploadFile
-        $hc_idHc = $this->input->post('idHistoria');
+    $sendJson = function ($payload) {
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+        exit;
+    };
 
+    $previousDisplayErrors = ini_get('display_errors');
+    $previousErrorReporting = error_reporting();
+    $previousErrorHandler = null;
 
+    ini_set('display_errors', '0');
+    error_reporting($previousErrorReporting & ~E_DEPRECATED & ~E_NOTICE & ~E_WARNING);
+
+    // PHPExcel en PHP 8 genera warnings/deprecations masivos; evitamos log flood en este flujo.
+    $previousErrorHandler = set_error_handler(function ($severity, $message, $file) {
+        $isPhpExcel = (strpos((string) $file, 'PHPExcel') !== false);
+        $isNonFatal = in_array($severity, [E_WARNING, E_NOTICE, E_DEPRECATED, E_USER_DEPRECATED], true);
+
+        if ($isPhpExcel && $isNonFatal) {
+            return true;
+        }
+
+        return false;
+    });
+
+    try {
+        $response['debug'] .= 'Inicio del proceso.\n';
+
+        $path = 'archivo/';
+
+        $phpExcelPath = APPPATH . '/third_party/PHPExcel.php';
+        if (!file_exists($phpExcelPath)) {
+            throw new Exception('PHPExcel.php no encontrado en ' . $phpExcelPath);
+        }
+        include $phpExcelPath;
+
+        $config['upload_path'] = $path;
+        $config['allowed_types'] = 'xlsx|xls|csv';
+        $config['remove_spaces'] = true;
+        $config['encrypt_name'] = false;
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
 
         if (!$this->upload->do_upload('uploadFile')) {
-            $error = array(
-                'error' => $this->upload->display_errors()
-            );
-        } else {
-            $data = array(
-                'upload_data' => $this->upload->data()
-            );
+            $error_msg = strip_tags($this->upload->display_errors('', ''));
+            $response['message'] = 'Error al subir archivo: ' . trim($error_msg);
+            $sendJson($response);
         }
 
+        $data = $this->upload->data();
+        $import_xls_file = $data['file_name'];
+        $inputFileName = $path . $import_xls_file;
 
-        if (empty($error)) {
-            if (!empty($data['upload_data']['file_name'])) {
-                $import_xls_file = $data['upload_data']['file_name'];
-            } else {
-                $import_xls_file = 0;
+        if (!file_exists($inputFileName)) {
+            throw new Exception('El archivo no se guardo: ' . $inputFileName);
+        }
+
+        $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+        $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+        $objPHPExcel = $objReader->load($inputFileName);
+        $allDataInSheet = $objPHPExcel->setActiveSheetIndex(0)->toArray(null, true, true, true);
+
+        $inserdata = [];
+        $flag = true;
+        $i = 0;
+
+        foreach ($allDataInSheet as $value) {
+            if ($flag) {
+                $flag = false;
+                continue;
             }
 
-
-            $inputFileName = $path . $import_xls_file;
-
-            $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
-            $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-            $objPHPExcel = $objReader->load($inputFileName);
-            $allDataInSheet = $objPHPExcel->setActiveSheetIndex(0)
-            ->toArray(null, true, true, true);
-            $flag = true;
-
-            $i = 0;
-            foreach ($allDataInSheet as $value) {
-                if ($flag) {
-                    $flag = false;
-                    continue;
-                }
-
-                $inserdata[$i]['fecha'] = $value['A'];
-                $inserdata[$i]['identificacion'] = $value['B'];
-                $inserdata[$i]['colesterol_total'] = $value['C'];
-                $inserdata[$i]['colesterol_hdl'] = $value['D'];
-                $inserdata[$i]['trigliceridos'] = $value['E'];
-				$inserdata[$i]['colesterol_ldl'] = $value['F'];
-				$inserdata[$i]['hemoglobina'] = $value['G'];
-				$inserdata[$i]['hematocrocito'] = $value['H'];
-				$inserdata[$i]['plaquetas'] = $value['I'];
-				$inserdata[$i]['hemoglobina_glicosilada'] = $value['J'];
-				$inserdata[$i]['glicemia_basal'] = $value['K'];
-				$inserdata[$i]['glicemia_post'] = $value['L'];
-				$inserdata[$i]['creatinina'] = $value['M'];
-				$inserdata[$i]['creatinuria'] = $value['N'];
-				$inserdata[$i]['microalbuminuria'] = $value['O'];
-				$inserdata[$i]['albumina'] = $value['P'];
-				$inserdata[$i]['relacion_albuminuria_creatinuria'] = $value['Q'];
-				$inserdata[$i]['parcial_orina'] = $value['R'];
-				$inserdata[$i]['depuracion_creatinina'] = $value['S'];
-				$inserdata[$i]['creatinina_orina_24'] = $value['T'];
-				$inserdata[$i]['proteina_orina_24'] = $value['U'];
-				$inserdata[$i]['hormona_estimulante_tiroides'] = $value['V'];
-				$inserdata[$i]['hormona_paratiroidea'] = $value['W'];
-				$inserdata[$i]['albumina_suero'] = $value['X'];
-				$inserdata[$i]['fosforo_suero'] = $value['Y'];
-				$inserdata[$i]['nitrogeno_ureico'] = $value['Z'];
-				$inserdata[$i]['acido_urico_suero'] = $value['AA'];
-				$inserdata[$i]['calcio'] = $value['AB'];
-				$inserdata[$i]['sodio_suero'] = $value['AC'];
-				$inserdata[$i]['potasio_suero'] = $value['AD'];
-				$inserdata[$i]['hierro_total'] = $value['AE'];
-				$inserdata[$i]['ferritina'] = $value['AF'];
-				$inserdata[$i]['transferrina'] = $value['AG'];
-				$inserdata[$i]['fosfatasa_alcalina'] = $value['AH'];
-				$inserdata[$i]['acido_folico_suero'] = $value['AI'];
-				$inserdata[$i]['vitamina_b12'] = $value['AJ'];
-				$inserdata[$i]['nitrogeno_ureico_orina_24'] = $value['AK'];
-
-                $i++;
+            if (empty($value['A']) && empty($value['B'])) {
+                continue;
             }
-            $result = $this->MHistoria->guardar_paraclinico_excel($inserdata);
 
-            unlink($inputFileName);
+            $inserdata[$i]['fecha'] = $value['A'] ?? '';
+            $inserdata[$i]['identificacion'] = $value['B'] ?? '';
+            $inserdata[$i]['colesterol_total'] = $value['C'] ?? '';
+            $inserdata[$i]['colesterol_hdl'] = $value['D'] ?? '';
+            $inserdata[$i]['trigliceridos'] = $value['E'] ?? '';
+            $inserdata[$i]['colesterol_ldl'] = $value['F'] ?? '';
+            $inserdata[$i]['hemoglobina'] = $value['G'] ?? '';
+            $inserdata[$i]['hematocrocito'] = $value['H'] ?? '';
+            $inserdata[$i]['plaquetas'] = $value['I'] ?? '';
+            $inserdata[$i]['hemoglobina_glicosilada'] = $value['J'] ?? '';
+            $inserdata[$i]['glicemia_basal'] = $value['K'] ?? '';
+            $inserdata[$i]['glicemia_post'] = $value['L'] ?? '';
+            $inserdata[$i]['creatinina'] = $value['M'] ?? '';
+            $inserdata[$i]['creatinuria'] = $value['N'] ?? '';
+            $inserdata[$i]['microalbuminuria'] = $value['O'] ?? '';
+            $inserdata[$i]['albumina'] = $value['P'] ?? '';
+            $inserdata[$i]['relacion_albuminuria_creatinuria'] = $value['Q'] ?? '';
+            $inserdata[$i]['parcial_orina'] = $value['R'] ?? '';
+            $inserdata[$i]['depuracion_creatinina'] = $value['S'] ?? '';
+            $inserdata[$i]['creatinina_orina_24'] = $value['T'] ?? '';
+            $inserdata[$i]['proteina_orina_24'] = $value['U'] ?? '';
+            $inserdata[$i]['hormona_estimulante_tiroides'] = $value['V'] ?? '';
+            $inserdata[$i]['hormona_paratiroidea'] = $value['W'] ?? '';
+            $inserdata[$i]['albumina_suero'] = $value['X'] ?? '';
+            $inserdata[$i]['fosforo_suero'] = $value['Y'] ?? '';
+            $inserdata[$i]['nitrogeno_ureico'] = $value['Z'] ?? '';
+            $inserdata[$i]['acido_urico_suero'] = $value['AA'] ?? '';
+            $inserdata[$i]['calcio'] = $value['AB'] ?? '';
+            $inserdata[$i]['sodio_suero'] = $value['AC'] ?? '';
+            $inserdata[$i]['potasio_suero'] = $value['AD'] ?? '';
+            $inserdata[$i]['hierro_total'] = $value['AE'] ?? '';
+            $inserdata[$i]['ferritina'] = $value['AF'] ?? '';
+            $inserdata[$i]['transferrina'] = $value['AG'] ?? '';
+            $inserdata[$i]['fosfatasa_alcalina'] = $value['AH'] ?? '';
+            $inserdata[$i]['acido_folico_suero'] = $value['AI'] ?? '';
+            $inserdata[$i]['vitamina_b12'] = $value['AJ'] ?? '';
+            $inserdata[$i]['nitrogeno_ureico_orina_24'] = $value['AK'] ?? '';
 
-            echo $result;
-        } else {
+            $i++;
+        }
 
-            if (!empty($data['upload_data']['file_name'])) {
-                $import_xls_file = $data['upload_data']['file_name'];
-            } else {
-                $import_xls_file = 0;
+        if (empty($inserdata)) {
+            if (file_exists($inputFileName)) {
+                unlink($inputFileName);
             }
-            $inputFileName = $path . $import_xls_file;
+            $response['message'] = 'El archivo no contiene datos validos para procesar';
+            $sendJson($response);
+        }
+
+        $result = $this->MHistoria->guardar_paraclinico_excel($inserdata);
+
+        if (file_exists($inputFileName)) {
             unlink($inputFileName);
         }
+
+        if ($result) {
+            $response['success'] = true;
+            $response['message'] = 'Se importaron ' . count($inserdata) . ' registros correctamente';
+            $sendJson($response);
+        }
+
+        $response['message'] = 'Error al guardar los datos en la base de datos';
+        $sendJson($response);
+    } catch (Throwable $e) {
+        if (!empty($inputFileName) && file_exists($inputFileName)) {
+            unlink($inputFileName);
+        }
+        $response['message'] = 'Error interno al procesar el archivo';
+        $response['debug'] = $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine();
+        $sendJson($response);
+    } finally {
+        if ($previousErrorHandler !== null) {
+            set_error_handler($previousErrorHandler);
+        } else {
+            restore_error_handler();
+        }
+        ini_set('display_errors', (string) $previousDisplayErrors);
+        error_reporting($previousErrorReporting);
     }
+}
 
     public function lista_paraclinico($doc)
     {
@@ -3733,7 +3797,7 @@ public function importar_excel1()
     
                 unlink($inputFileName);
     
-                echo $result;
+                echo json_encode(['success' => $result == 1, 'message' => $result == 1 ? 'Datos importados correctamente' : 'Error al procesar el archivo']);
             } else {
     
                 if (!empty($data['upload_data']['file_name'])) {
