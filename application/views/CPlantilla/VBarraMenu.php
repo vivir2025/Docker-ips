@@ -180,6 +180,8 @@ if (!$this->session->userdata('login')) {
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a  id=miBoton class="dropdown-item" href="<?= site_url('CInforme') ?>">Informe Rcv</a>
                         <a  id=miBoton class="dropdown-item" href="<?= site_url('CInforme/informe1') ?>">Informe 1552</a>
+                        <a  id=miBoton class="dropdown-item" href="<?= site_url('CInforme/informe3') ?>">Informe Facturación</a>
+                        <a  id=miBoton class="dropdown-item" href="<?= site_url('CInforme/informe4') ?>">Generar RIPS (JSON)</a>
 						<a  id=miBoton class="dropdown-item" href="<?= site_url('CHistoria/contador') ?>">Contador </a>
                         <a id="miBoton" class="dropdown-item" href="<?= 'https://docs.google.com/spreadsheets/d/14G2MORWGfClUHYePgwSnsz4_n-YuHpFH0xB34BuAZfY/edit?usp=sharing' ?>" target="_blank">Generador de Base App Cajibio</a>
                         <a id="miBoton" class="dropdown-item" href="<?= 'https://docs.google.com/spreadsheets/d/14-ok3uN6k5amV0ahY6m57mHx6veH1mpT_Td1gcfTS84/edit?usp=sharing' ?>" target="_blank">Generador de Base App Piendamo</a>

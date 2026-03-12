@@ -419,4 +419,303 @@ END AS codigo_trabajo
     return $consulta->result();
   }
 
+  public function informe_facturacion($fecha1, $fecha2)
+  {
+      // Citas con factura
+      $facturados = $this->db->query("
+          SELECT 
+              td.nom_abreviacion AS tipo_documento,
+              p.pacDocumento AS documento,
+              p.pacNombre AS nombre,
+              p.pacApellido AS apellido,
+              f.facFecha AS fecha,
+              c.cupCodigo AS cups,
+              c.cupNombre AS nombre_cups,
+              'Facturado' AS estado_factura
+          FROM factura f
+          INNER JOIN paciente p ON p.idPaciente = f.paciente_idPaciente
+          LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+          LEFT JOIN cita ci ON ci.idCita = f.cita_idCita
+          LEFT JOIN cups_contratado cc ON cc.id_cups_contrato = ci.idCupsContratado
+          LEFT JOIN cups c ON c.idCups = cc.cups_idCups
+          WHERE f.facFecha BETWEEN '$fecha1' AND '$fecha2'
+            AND f.cita_idCita IS NOT NULL
+      ")->result();
+
+    $no_facturados = $this->db->query("
+      SELECT 
+          td.nom_abreviacion AS tipo_documento,
+          p.pacDocumento AS documento,
+          p.pacNombre AS nombre,
+          p.pacApellido AS apellido,
+          ci.citFecha AS fecha,
+          c.cupCodigo AS cups,
+          c.cupNombre AS nombre_cups,
+          u.usuNombre,
+          u.usuApellido,
+          'No facturado' AS estado_factura
+      FROM cita ci
+      INNER JOIN paciente p ON p.idPaciente = ci.paciente_idPaciente
+      LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+      LEFT JOIN factura f ON f.cita_idCita = ci.idCita
+      LEFT JOIN cups_contratado cc ON cc.id_cups_contrato = ci.idCupsContratado
+      LEFT JOIN cups c ON c.idCups = cc.cups_idCups
+      INNER JOIN agenda a ON ci.agenda_idAgenda = a.idAgenda
+      INNER JOIN usuario u ON a.usuario_idUsuario = u.idUsuario
+      WHERE f.idFactura IS NULL
+        AND ci.citEstado NOT IN ('FINALIZADO', 'FINALIZADO Y FACTURADO')
+        AND ci.citFecha BETWEEN '$fecha1' AND '$fecha2'
+  ")->result();
+
+      // Facturas sin cita
+      $factura_sin_cita = $this->db->query("
+          SELECT 
+              td.nom_abreviacion AS tipo_documento,
+              p.pacDocumento AS documento,
+              p.pacNombre AS nombre,
+              p.pacApellido AS apellido,
+              f.facFecha AS fecha,
+              c.cupCodigo AS cups,
+              c.cupNombre AS nombre_cups,
+              'Facturado sin cita' AS estado_factura
+          FROM factura f
+          INNER JOIN paciente p ON p.idPaciente = f.paciente_idPaciente
+          LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+          INNER JOIN factura_cup fc ON fc.factura_idFactura = f.idFactura
+          INNER JOIN cups c ON c.idCups = fc.cups_idCups
+          WHERE f.cita_idCita IS NULL
+            AND f.facFecha BETWEEN '$fecha1' AND '$fecha2'
+      ")->result();
+
+     $citas_finalizadas = $this->db->query("
+      SELECT 
+          td.nom_abreviacion AS tipo_documento,
+          p.pacDocumento AS documento,
+          p.pacNombre AS nombre,
+          p.pacApellido AS apellido,
+          ci.citFecha AS fecha,
+          c.cupCodigo AS cups,
+          c.cupNombre AS nombre_cups,
+          u.usuNombre,
+          u.usuApellido,
+          'Facturado' AS estado_factura
+      FROM cita ci
+      INNER JOIN paciente p ON p.idPaciente = ci.paciente_idPaciente
+      LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+      INNER JOIN cups_contratado cc ON cc.id_cups_contrato = ci.idCupsContratado
+      INNER JOIN cups c ON c.idCups = cc.cups_idCups
+      LEFT JOIN factura f ON f.cita_idCita = ci.idCita
+      INNER JOIN agenda a ON ci.agenda_idAgenda = a.idAgenda
+      INNER JOIN usuario u ON a.usuario_idUsuario = u.idUsuario
+      WHERE ci.citEstado IN ('FINALIZADO', 'FINALIZADO Y FACTURADO')
+        AND ci.citFecha BETWEEN '$fecha1' AND '$fecha2'
+  ")->result();
+
+      // Exámenes de laboratorio (paraclínicos)
+      $sql_lab = "
+            SELECT 
+          hcs.*, 
+          td.nom_abreviacion AS tipo_documento,
+          p.pacDocumento AS documento,
+          p.pacNombre AS nombre,
+          p.pacApellido AS apellido,
+          DATE_FORMAT(STR_TO_DATE(hcs.fecha, '%d/%m/%Y'), '%Y-%m-%d') AS fecha_formateada
+      FROM hcs_paraclinico hcs
+      INNER JOIN paciente p ON p.pacDocumento = hcs.identificacion
+      LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+      WHERE STR_TO_DATE(hcs.fecha, '%d/%m/%Y') BETWEEN ? AND ?
+
+      ";
+      $data_laboratorio = $this->db->query($sql_lab, [$fecha1, $fecha2])->result();
+
+      $cup_map = [
+          'colesterol_total' => 903818, 'colesterol_hdl' => 903815, 'trigliceridos' => 903868,
+          'colesterol_ldl' => 903816, 'hemoglobina' => 902210, 'hematocrocito' => 902207,
+          'plaquetas' => 902209, 'hemoglobina_glicosilada' => 903427, 'glicemia_basal' => 903841,
+          'glicemia_post' => 903845, 'creatinina' => 903895, 'creatinuria' => 903876,
+          'microalbuminuria' => 903026, 'albumina' => 903803, 'relacion_albuminuria_creatinuria' => 903026,
+          'parcial_orina' => 907106, 'depuracion_creatinina' => 903823, 'creatinina_orina_24' => 903824,
+          'proteina_orina_24' => 903862, 'hormona_estimulante_tiroides' => 904902,
+          'hormona_paratiroidea' => 904911, 'albumina_suero' => 903803, 'fosforo_suero' => 903835,
+          'nitrogeno_ureico' => 903856, 'acido_urico_suero' => 903801, 'calcio' => 903603,
+          'sodio_suero' => 903864, 'potasio_suero' => 903859, 'hierro_total' => 903846,
+          'ferritina' => 903016, 'transferrina' => 903045, 'fosfatasa_alcalina' => 903833,
+          'acido_folico_suero' => 903105, 'vitamina_b12' => 903703, 'nitrogeno_ureico_orina_24' => 903857
+      ];
+
+      $laboratorio_procesado = [];
+      foreach ($data_laboratorio as $lab) {
+          foreach ($cup_map as $examen => $cup_code) {
+              if (!empty($lab->$examen)) {
+                  $cup_info = $this->db->query("
+                      SELECT cupCodigo, cupNombre 
+                      FROM cups 
+                      WHERE cupCodigo = ?
+                  ", [$cup_code])->row();
+
+                  $laboratorio_procesado[] = (object)[
+                      'tipo_documento' => $lab->tipo_documento ?? '',
+                      'documento' => $lab->documento ?? '',
+                      'nombre' => $lab->nombre ?? '',
+                      'apellido' => $lab->apellido ?? '',
+                      'fecha' => $lab->fecha_formateada ?? null,
+                      'cups' => $cup_info ? $cup_info->cupCodigo : $cup_code,
+                      'nombre_cups' => $cup_info ? $cup_info->cupNombre : ucfirst(str_replace('_', ' ', $examen)),
+                      'estado_factura' => 'Laboratorio sin cita'
+                  ];
+              }
+          }
+      }
+
+      // Añadir laboratorios a los que no tienen cita
+      $factura_sin_cita = array_merge($factura_sin_cita, $laboratorio_procesado);
+
+      // Unificar todos los resultados
+      return array_merge($facturados, $no_facturados, $factura_sin_cita, $citas_finalizadas);
+  }
+
+  public function informe_json_rips($fecha1, $fecha2)
+  {
+      // Citas con factura
+      $facturados = $this->db->query("
+          SELECT 
+              td.nom_abreviacion AS tipo_documento,
+              p.pacDocumento AS documento,
+              p.pacNombre AS nombre,
+              p.pacApellido AS apellido,
+              f.facFecha AS fecha,
+              c.cupCodigo AS cups,
+              c.cupNombre AS nombre_cups,
+              'Facturado' AS estado_factura
+          FROM factura f
+          INNER JOIN paciente p ON p.idPaciente = f.paciente_idPaciente
+          LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+          LEFT JOIN cita ci ON ci.idCita = f.cita_idCita
+          LEFT JOIN cups_contratado cc ON cc.id_cups_contrato = ci.idCupsContratado
+          LEFT JOIN cups c ON c.idCups = cc.cups_idCups
+          WHERE f.facFecha BETWEEN '$fecha1' AND '$fecha2'
+            AND f.cita_idCita IS NOT NULL
+      ")->result();
+
+      $no_facturados = $this->db->query("
+          SELECT 
+              td.nom_abreviacion AS tipo_documento,
+              p.pacDocumento AS documento,
+              p.pacNombre AS nombre,
+              p.pacApellido AS apellido,
+              ci.citFecha AS fecha,
+              c.cupCodigo AS cups,
+              c.cupNombre AS nombre_cups,
+              'No facturado' AS estado_factura
+          FROM cita ci
+          INNER JOIN paciente p ON p.idPaciente = ci.paciente_idPaciente
+          LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+          LEFT JOIN factura f ON f.cita_idCita = ci.idCita
+          LEFT JOIN cups_contratado cc ON cc.id_cups_contrato = ci.idCupsContratado
+          LEFT JOIN cups c ON c.idCups = cc.cups_idCups
+          WHERE f.idFactura IS NULL
+            AND ci.citEstado NOT IN ('FINALIZADO', 'FINALIZADO Y FACTURADO')
+            AND ci.citFecha BETWEEN '$fecha1' AND '$fecha2'
+      ")->result();
+
+      // Facturas sin cita
+      $factura_sin_cita = $this->db->query("
+          SELECT 
+              td.nom_abreviacion AS tipo_documento,
+              p.pacDocumento AS documento,
+              p.pacNombre AS nombre,
+              p.pacApellido AS apellido,
+              f.facFecha AS fecha,
+              c.cupCodigo AS cups,
+              c.cupNombre AS nombre_cups,
+              'Facturado sin cita' AS estado_factura
+          FROM factura f
+          INNER JOIN paciente p ON p.idPaciente = f.paciente_idPaciente
+          LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+          INNER JOIN factura_cup fc ON fc.factura_idFactura = f.idFactura
+          INNER JOIN cups c ON c.idCups = fc.cups_idCups
+          WHERE f.cita_idCita IS NULL
+            AND f.facFecha BETWEEN '$fecha1' AND '$fecha2'
+      ")->result();
+
+      // Paraclínicos
+      $sql_lab = "
+          SELECT 
+              hcs.*,
+              td.nom_abreviacion AS tipo_documento,
+              p.pacDocumento AS documento,
+              p.pacNombre AS nombre,
+              p.pacApellido AS apellido,
+              DATE_FORMAT(STR_TO_DATE(hcs.fecha, '%d/%m/%Y'), '%Y-%m-%d') AS fecha_formateada
+          FROM hcs_paraclinico hcs
+          INNER JOIN paciente p ON p.pacDocumento = hcs.identificacion
+          LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+          WHERE STR_TO_DATE(hcs.fecha, '%d/%m/%Y') BETWEEN ? AND ?
+      ";
+      $data_laboratorio = $this->db->query($sql_lab, [$fecha1, $fecha2])->result();
+      
+      $cup_map = [
+          'colesterol_total' => 903818, 'colesterol_hdl' => 903815, 'trigliceridos' => 903868, 
+          'colesterol_ldl' => 903816, 'hemoglobina' => 902210, 'hematocrocito' => 902207, 
+          'plaquetas' => 902209, 'hemoglobina_glicosilada' => 903427, 'glicemia_basal' => 903841, 
+          'glicemia_post' => 903845, 'creatinina' => 903895, 'creatinuria' => 903876, 
+          'microalbuminuria' => 903026, 'albumina' => 903803, 'relacion_albuminuria_creatinuria' => 903026, 
+          'parcial_orina' => 907106, 'depuracion_creatinina' => 903823, 'creatinina_orina_24' => 903824, 
+          'proteina_orina_24' => 903862, 'hormona_estimulante_tiroides' => 904902, 
+          'hormona_paratiroidea' => 904911, 'albumina_suero' => 903803, 'fosforo_suero' => 903835, 
+          'nitrogeno_ureico' => 903856, 'acido_urico_suero' => 903801, 'calcio' => 903603, 
+          'sodio_suero' => 903864, 'potasio_suero' => 903859, 'hierro_total' => 903846, 
+          'ferritina' => 903016, 'transferrina' => 903045, 'fosfatasa_alcalina' => 903833, 
+          'acido_folico_suero' => 903105, 'vitamina_b12' => 903703, 'nitrogeno_ureico_orina_24' => 903857
+      ];
+
+      $laboratorio_procesado = [];
+      foreach ($data_laboratorio as $lab) {
+          foreach ($cup_map as $examen => $cup_code) {
+              if (!empty($lab->$examen)) {
+                  $cup_info = $this->db->query("
+                      SELECT cupCodigo, cupNombre 
+                      FROM cups 
+                      WHERE cupCodigo = ?
+                  ", [$cup_code])->row();
+
+                  $laboratorio_procesado[] = (object)[
+                      'tipo_documento' => $lab->tipo_documento ?? '',
+                      'documento' => $lab->documento ?? '',
+                      'nombre' => $lab->nombre ?? '',
+                      'apellido' => $lab->apellido ?? '',
+                      'fecha' => $lab->fecha_formateada ?? null,
+                      'cups' => $cup_info ? $cup_info->cupCodigo : $cup_code,
+                      'nombre_cups' => $cup_info ? $cup_info->cupNombre : $examen,
+                      'estado_factura' => 'Laboratorio sin cita'
+                  ];
+              }
+          }
+      }
+
+      $factura_sin_cita = array_merge($factura_sin_cita, $laboratorio_procesado);
+
+      $citas_finalizadas = $this->db->query("
+          SELECT 
+              td.nom_abreviacion AS tipo_documento,
+              p.pacDocumento AS documento,
+              p.pacNombre AS nombre,
+              p.pacApellido AS apellido,
+              ci.citFecha AS fecha,
+              c.cupCodigo AS cups,
+              c.cupNombre AS nombre_cups,
+              'Facturado' AS estado_factura
+          FROM cita ci
+          INNER JOIN paciente p ON p.idPaciente = ci.paciente_idPaciente
+          LEFT JOIN tipo_documento td ON td.idTipDocumento = p.pacTipDocumento
+          INNER JOIN cups_contratado cc ON cc.id_cups_contrato = ci.idCupsContratado
+          INNER JOIN cups c ON c.idCups = cc.cups_idCups
+          LEFT JOIN factura f ON f.cita_idCita = ci.idCita
+          WHERE ci.citEstado IN ('FINALIZADO', 'FINALIZADO Y FACTURADO')
+            AND ci.citFecha BETWEEN '$fecha1' AND '$fecha2'
+      ")->result();
+
+      return array_merge($facturados, $no_facturados, $factura_sin_cita, $citas_finalizadas);
+  }
+
 }
