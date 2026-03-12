@@ -2,6 +2,40 @@
 <!-- This view lists the appointments assigned to the health professional to initialize them ... -->
 
 <style>
+/* Barra de progreso lineal estilo YouTube/Google */
+.linear-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    z-index: 9999;
+    display: none;
+}
+
+.linear-progress-bar {
+    height: 100%;
+    background: #3498db;
+    width: 0%;
+    animation: progressAnimation 2s ease-in-out infinite;
+}
+
+@keyframes progressAnimation {
+    0% {
+        width: 0%;
+        margin-left: 0%;
+    }
+    50% {
+        width: 75%;
+        margin-left: 25%;
+    }
+    100% {
+        width: 0%;
+        margin-left: 100%;
+    }
+}
+
 /* Skeleton Loader Styles */
 .skeleton-loader {
     display: block;
@@ -453,6 +487,11 @@
 }
 </style>
 
+<!-- Barra de progreso lineal -->
+<div id="linearProgress" class="linear-progress">
+    <div class="linear-progress-bar"></div>
+</div>
+
 <div class="cronograma-container">
     <div class="cronograma-header">
         <h4>
@@ -706,9 +745,10 @@
 
     });
 
-    // Primera carga con skeleton loader
+    // Primera carga con skeleton loader Y barra de progreso lineal
     $(document).ready(function() {
-        // Mostrar skeleton loader antes de cargar
+        // Mostrar barra de progreso y skeleton loader
+        $("#linearProgress").show();
         $("#skeleton-loader").show();
         
         $.ajax({
@@ -717,11 +757,13 @@
             timeout: 10000, // 10 segundos timeout
             
             success: function(result) {
-                // Ocultar skeleton loader y mostrar datos
+                // Ocultar barra de progreso y skeleton loader
+                $("#linearProgress").fadeOut(300);
                 $("#skeleton-loader").hide();
                 $("#mens_cita").html(result).show();
             },
             error: function() {
+                $("#linearProgress").fadeOut(300);
                 $("#skeleton-loader").hide();
                 $("#mens_cita").html('<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h5>Error al cargar las citas</h5><p>Por favor, recarga la página</p></div>').show();
             }

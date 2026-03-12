@@ -1,47 +1,72 @@
 <style>
-      .form-group {
-            position: relative;
-        }
+/* === DISEÑO PROFESIONAL AZUL === */
+body {
+    background: #f8f9fa !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
-        .microfono {
-            position: absolute;
-            top: 50%; /* Centra verticalmente el ícono */
-            right: 10px; /* Ajusta la posición horizontal del ícono */
-            transform: translateY(-50%);
-            width: 30px;
-            height: 30px;
-            background-color: transparent;
-            background-image: url('http://45.167.125.238/ips/assets/img/micro2.ico'); /* Ruta a la imagen del micrófono inactivo */
-            background-size: cover;
-            cursor: pointer;
-            z-index: 1;
-            display: inline-block; /* Para que el icono se ajuste al tamaño del contenido */
-            transition: transform 0.3s ease-in-out;
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(0, 0, 255, 0.7);
-        }
+.adicional-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 4px 20px rgba(52,152,219,0.3);
+    margin: -15px -15px 0 -15px;
+}
 
-        .microfono.active {
-            animation: pulse 1s infinite; /* Aplica la animación cuando está activo */
-            background-image: url('http://45.167.125.238/ips/assets/img/micro2.ico'); /* Ruta a la imagen del micrófono activo */
-            box-shadow: 0 0 0 10px rgba(0, 0, 255, 0); /* Restaura la sombra */
-        }
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50 !important;
+    margin: 35px 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #3498db;
+}
 
-        @keyframes pulse {
-            0% {
-                transform: scale(0.8);
-                box-shadow: 0 0 0 0 rgba(0, 0, 255, 0.7);
-            }
-            50% {
-                transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(0, 0, 255, 0);
-            }
-            100% {
-                transform: scale(0.8);
-                box-shadow: 0 0 0 0 rgba(0, 0, 255, 0.7);
-            }
-        }
-        .card {
+.form-group {
+    position: relative;
+}
+
+.microfono {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    background-image: url('http://45.167.125.238/ips/assets/img/micro2.ico');
+    background-size: cover;
+    cursor: pointer;
+    z-index: 1;
+    display: inline-block;
+    transition: transform 0.3s ease-in-out;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+}
+
+.microfono.active {
+    animation: pulse 1s infinite;
+    background-image: url('http://45.167.125.238/ips/assets/img/micro2.ico');
+    box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+    }
+    50% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+    }
+    100% {
+        transform: scale(0.8);
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+    }
+}
+
+.card {
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 10px;
@@ -58,7 +83,7 @@
 }
 
 .btn-default {
-    color: #007bff;
+    color: #3498db;
     background-color: #f8f9fa;
     border: none;
 }
@@ -82,28 +107,213 @@
     justify-content: flex-end;
 }
 
+.form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 45px 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+    outline: none;
+}
+
+.btn-primary {
+    background: #3498db;
+    border: none;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52,152,219,0.5);
+}
+
+.btn-outline-info {
+    border: 2px solid #3498db !important;
+    color: #3498db !important;
+    background: transparent !important;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-info:hover {
+    background: #3498db !important;
+    color: white !important;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    border: 2px solid #3498db !important;
+    color: #3498db !important;
+    background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+    background: #3498db !important;
+    color: white !important;
+}
+
 .btn-outline-danger {
-    color: #dc3545;
-    border: 1px solid #dc3545;
+    border: 2px solid #dc3545 !important;
+    color: #dc3545 !important;
 }
 
 .btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: white;
+    background: #dc3545 !important;
+    color: white !important;
 }
 
+.table th {
+    background: #f8f9fa !important;
+    color: #2c3e50 !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #3498db !important;
+}
 
+/* Skeleton Loader */
+.skeleton-loader {
+    display: none;
+    padding: 20px;
+}
 
-.form-control {
-    padding-right: 40px; /* Ajusta el espacio para el ícono */
-    z-index: 0;
-    }
+.skeleton-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.skeleton-line {
+    height: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+.skeleton-line.medium {
+    width: 80%;
+}
+
+.skeleton-input {
+    height: 45px;
+    background: linear-gradient(90deg, #f8f8f8 25%, #ececec 50%, #f8f8f8 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Overlay de guardando */
+#guardandoOverlayAd {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(44,62,80,0.85);
+    z-index: 99999;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.guardando-box-ad {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px 55px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(52,152,219,0.4);
+    animation: zoomIn 0.3s ease;
+}
+
+.guardando-spinner-ad {
+    width: 56px;
+    height: 56px;
+    border: 6px solid #f0f0f0;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    animation: spin-ad .9s linear infinite;
+    margin: 0 auto 18px;
+}
+
+@keyframes spin-ad {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
 </style>
-<!-- This is the additional view in case the health professional has to add a medication, etc. -->
-<div class="container bg-light">
-<body
-        style="background:linear-gradient(20deg, #2a327d,#2a327d, #166a28, #166a28, #2a327d,#2a327d);"  >
-    <h5 style="color: blue;">DATO ADICIONAL</h5>
+
+<!-- Skeleton Loader -->
+<div id="skeletonLoaderAd" class="skeleton-loader">
+    <div class="skeleton-card">
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-input"></div>
+        <div class="skeleton-input"></div>
+    </div>
+    <div class="skeleton-card">
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-input"></div>
+        <div class="skeleton-input"></div>
+        <div class="skeleton-input"></div>
+    </div>
+    <div class="skeleton-card">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-input"></div>
+    </div>
+</div>
+
+<!-- Overlay guardando -->
+<div id="guardandoOverlayAd">
+    <div class="guardando-box-ad">
+        <div class="guardando-spinner-ad"></div>
+        <div style="font-size:20px;font-weight:700;color:#2c3e50;margin-bottom:6px;">Guardando Datos</div>
+        <div style="font-size:14px;color:#7f8c8d;">Espere un momento...</div>
+    </div>
+</div>
+
+<!-- Contenido Principal -->
+<div id="contenidoAdicional" class="container bg-light" style="display: none;">
+    <div class="adicional-header">
+        <h4 style="margin:0; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-notes-medical"></i>
+            DATOS ADICIONALES
+        </h4>
+    </div>
+    <div style="padding: 20px; background: white; border-radius: 0 0 12px 12px;">
+    <h5 style="color: #3498db; font-weight: 700; font-size: 16px;">DATO ADICIONAL</h5>
     <hr>
 
     <form>
@@ -123,7 +333,7 @@
     <div class="col-sm-12 ">
         <?php if ($proceso_idProceso === 1 || $proceso_idProceso == 2 || $proceso_idProceso == 3 || $proceso_idProceso == 4 || $proceso_idProceso == 6 || $proceso_idProceso == 7) { ?>
 
-            <h5>MEDICAMENTO</h5>
+            <h5 style="font-size: 14px;">MEDICAMENTO</h5>
             <hr>
             <table class="table table-bordered">
                 <thead>
@@ -205,7 +415,7 @@
         <br>
         <?php if ($proceso_idProceso == 1 || $proceso_idProceso == 3 || $proceso_idProceso == 6 || $proceso_idProceso == 7) { ?>
 
-            <h5>AYUDA DIAGNOSTICA</h5>
+            <h5 style="font-size: 14px;">AYUDA DIAGNOSTICA</h5>
             <hr>
             <table class="table table-bordered">
                 <thead>
@@ -268,7 +478,6 @@
                                     }
                                     ?>
 
-
                                 </tbody>
                             </table>
                             <div class="modal-footer">
@@ -283,7 +492,7 @@
         <?php if ($proceso_idProceso == 1 || $proceso_idProceso == 3 || $proceso_idProceso == 6 || $proceso_idProceso == 7) { ?>
             <div style="border: solid 1px #9c9c9c; padding: 15px;">
     <!-- Título principal -->
-    <legend>DIAGNÓSTICO</legend>
+    <legend style="font-size: 15px;">DIAGNÓSTICO</legend>
     <hr>
 
     <!-- Formulario para Diagnóstico Principal -->
@@ -405,14 +614,12 @@
 
 </div>
 
-
-
 <?php } ?>
 
         <br>
       <?php if ($proceso_idProceso == 1 || $proceso_idProceso == 3 || $proceso_idProceso == 6 || $proceso_idProceso == 7) { ?>
 
-                    <h5>MEDICAMENTOS</h5>
+                    <h5 style="font-size: 14px;">MEDICAMENTOS</h5>
                     <hr>
                     <table class="table table-bordered">
                         <thead>
@@ -492,7 +699,7 @@
                     <br>
         <?php if ($proceso_idProceso == 1 || $proceso_idProceso == 3 || $proceso_idProceso == 4 || $proceso_idProceso == 6 || $proceso_idProceso == 7) { ?>
 
-            <h5>Remisión</h5>
+            <h5 style="font-size: 14px;">Remisión</h5>
             <hr>
             <table class="table table-bordered">
                 <thead>
@@ -555,7 +762,6 @@
                                     }
                                     ?>
 
-
                                 </tbody>
                             </table>
                             <div class="modal-footer">
@@ -569,14 +775,25 @@
         
     </div>
     <hr>
-    <a href="<?= base_url("index.php/CHistoria/") ?>" class="btn btn-primary"> [Volver]</a>
-
+    <a href="<?= base_url("index.php/CHistoria/") ?>" class="btn btn-primary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    </div>
 </div>
+
 <script type='text/javascript'>
+// Mostrar skeleton loader al cargar la página
+$(document).ready(function() {
+    $('#skeletonLoaderAd').show();
+    $('#contenidoAdicional').hide();
+    
+    // Simular carga de datos
+    setTimeout(function() {
+        $('#skeletonLoaderAd').fadeOut(300, function() {
+            $('#contenidoAdicional').fadeIn(300);
+        });
+    }, 800);
 
-
-
-$(document).ready(function () {
     // Seleccionar/deseleccionar todos los checkboxes
     $('#diagnosticoTodos').on('click', function () {
         $('.checkEliminar').prop('checked', this.checked);
@@ -607,19 +824,6 @@ $(document).ready(function () {
                     $('.checkEliminar:checked').each(function () {
                         $(this).closest('tr').remove();
                     });
-
-                    // Opción alternativa: Recargar la tabla con los datos actualizados
-                    // $.ajax({
-                    //     url: "<?php echo base_url('index.php/CHistoria/get_diagnosticos'); ?>", // Asegúrate de que este endpoint recupere los diagnósticos actualizados
-                    //     type: 'GET',
-                    //     success: function (result) {
-                    //         $("#dataDiagnosticos").html(result); // Actualizar la tabla con los datos frescos
-                    //     },
-                    //     error: function (xhr, status, error) {
-                    //         console.error("Error al obtener los diagnósticos actualizados: ", error);
-                    //     }
-                    // });
-
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al eliminar diagnósticos: ", error);
@@ -630,8 +834,6 @@ $(document).ready(function () {
         }
     });
 });
-
-
 
 function elemento_selecionado_diagnostico(object) {
         dato_cups = (object.id).split('&');
@@ -654,7 +856,6 @@ function elemento_selecionado_diagnostico(object) {
         idDiagnostico = dato_cups[0];
         diaNombre = dato_cups[1];
         diaCodigo = dato_cups[2];
-
 
         $('#idDiagnostico1').val(idDiagnostico);
         $('#diagnostico1').val(diaNombre);
@@ -684,7 +885,6 @@ function elemento_selecionado_diagnostico(object) {
         diaNombre = dato_cups[1];
         diaCodigo = dato_cups[2];
 
-
         $('#idDiagnostico3').val(idDiagnostico);
         $('#diagnostico3').val(diaNombre);
         $('#codigo3').val(diaCodigo);
@@ -699,7 +899,6 @@ function elemento_selecionado_diagnostico(object) {
         id_hc = $("#id_hc").val();
         tipo_item = $("#tipo_item3").val();
         tipo_diagnostico3 = $("#tipo_diagnostico3").val();
-
 
         if (idDiagnostico != "" && diagnostico != "" && tipo_item != "" && tipo_diagnostico3 != "") {
 
@@ -744,7 +943,6 @@ function elemento_selecionado_diagnostico(object) {
         tipo_item = $("#tipo_item2").val();
         tipo_diagnostico2 = $("#tipo_diagnostico2").val();
 
-
         if (idDiagnostico != "" && diagnostico != "" && tipo_item != "" && tipo_diagnostico2 != "") {
 
             $.ajax({
@@ -786,7 +984,6 @@ function elemento_selecionado_diagnostico(object) {
         id_hc = $("#id_hc").val();
         tipo_item = $("#tipo_item1").val();
         tipo_diagnostico1 = $("#tipo_diagnostico1").val();
-
 
         if (idDiagnostico != "" && diagnostico != "" && tipo_item != "" && tipo_diagnostico1 != "") {
 
@@ -831,7 +1028,6 @@ function elemento_selecionado_diagnostico(object) {
 
         tipo_item = $("#tipo_item").val();
         tipo_diagnostico = $("#tipo_diagnostico").val();
-
 
         if (idDiagnostico != "" && diagnostico != "" && tipo_item != "" && tipo_diagnostico != "") {
 
@@ -1067,13 +1263,10 @@ if (idRemision != "" && remision != "") {
             $("#data3").load(" #data3");
             alert("Elemento registrado correctamente!!!")
 
-
         }
     });
 
 } else {
-
-
 
     alert("No deje campos vacios")
 
@@ -1112,7 +1305,6 @@ if (remision != "") {
 }
 
 };
-
 
 $("#add_cups").click(function() {
 
@@ -1192,7 +1384,6 @@ $(document).on('change', '#seleccionarTodos', function() {
 $('.checkEliminar').prop('checked', this.checked);
 });
 
-
 });
 
 // Función para eliminar medicamentos al confirmar la acción
@@ -1225,7 +1416,6 @@ $(document).on('change', '#ayudaTodos', function() {
 $('.checkEliminar').prop('checked', this.checked);
 });
 
-
 });
 // Función para eliminar ayudas diagnósticas al confirmar la acción
 function eliminarAyudas() {
@@ -1256,15 +1446,12 @@ $('#botonEliminarAyudas').on('click', function() {
 eliminarAyudas();
 });
 
-
-
 //En globo la parte de seleccion para los medicamentos
 $(document).ready(function() {
 // Delegación de eventos para seleccionar/deseleccionar todos los checkboxes
 $(document).on('change', '#seleccionarTodos', function() {
 $('.checkEliminar').prop('checked', this.checked);
 });
-
 
 });
 
@@ -1299,7 +1486,6 @@ $(document).on('change', '#remisionTodos', function() {
 $('.checkEliminar').prop('checked', this.checked);
 });
 
-
 });
 
 // Función para eliminar remisiones al confirmar la acción
@@ -1332,7 +1518,6 @@ eliminarRemisiones();
 });
 
 //
-
 
 $("#add").click(function() {
 
@@ -1380,7 +1565,6 @@ if (cantidad != "" && dosis != "" && medicamento != "") {
 
 });
 
-
 function buscar() {
 var medicamento = $("input#medicamento").val();
 
@@ -1408,12 +1592,19 @@ dato_medicamento = (object.id).split('&');
 idMedicamento = dato_medicamento[0];
 medNombre = dato_medicamento[1];
 
-
 $('#idMedicamento').val(idMedicamento);
 $('#medicamento').val(medNombre);
 $('#lista_nombre').hide();
 }
 
+// Función para mostrar overlay
+function mostrarOverlay() {
+    $('#guardandoOverlayAd').css('display', 'flex');
+}
+
+function ocultarOverlay() {
+    $('#guardandoOverlayAd').fadeOut(300);
+}
 
 $("#nota_adicional").click(function() {
 
@@ -1421,7 +1612,8 @@ id_hc = $("#id_hc").val();
 nota = $("#adicional").val();
 
 if (id_hc != "" && nota != "") {
-
+    mostrarOverlay();
+    
     $.ajax({
         url: "<?php echo base_url() . 'index.php/CHistoria/nota_adicional'; ?>",
         type: 'POST',
@@ -1431,20 +1623,18 @@ if (id_hc != "" && nota != "") {
         },
 
         success: function(result) {
-
-            //console.log(result);
-
+            ocultarOverlay();
             $("#id_hc").val("");
             $("#adicional").val("");
             alert("Elemento registrado correctamente!!!")
-            //$("#mens").html(result);
+        },
+        error: function() {
+            ocultarOverlay();
         }
     });
 
 } else {
-
     alert("No deje campos vacios")
-
 }
 
 });
