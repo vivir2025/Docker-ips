@@ -56,7 +56,7 @@ public function informe1()
 
     public function exportar() {
         // Crear nombre del archivo
-        $filename = 'Informe_1552_' . date('Y-m-d', time()) . '.xls';  
+        $filename = 'Informe_Rcv_' . date('Y-m-d', time()) . '.xls';  
     
         $fecha1 = $this->input->post('fecha');
         $fecha2 = $this->input->post('fecha1');
@@ -215,129 +215,63 @@ echo "<td><b>Brigada</b></td>";
 
     public function exportar_1() {
         // create file name
-        $filename = date('Y-m-d',time()).'.xls';  
+        $filename = 'Informe_' . date('Y-m-d',time()).'.xls';  
     
         $fecha1 = $this->input->post('fecha');
         $fecha2 = $this->input->post('fecha1');
     
-        
         $data = $this->MInforme->ver_pac_by_fecha_y_brigada($fecha1, $fecha2);
     
-    
-     header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
-    header("Content-Disposition: attachment; filename=$filename");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-    
-    
-        echo "<table border=1";
-        if (sizeof($data) > 0) {
-            echo "<tr >";
-            echo "<td>Primer Nombre</td>";
-            echo "<td>Segundo Nombre</td>";
-            echo "<td>Primer Apellido</td>";
-            echo "<td>Segundo Apellido</td>";
-            echo "<td>Tipo Documento</td>";
-            echo "<td>Numero de Identificacion</td>";
-            echo "<td>Fecha de Nacimiento</td>";
-             echo "<td>Direccion</td>";
-             echo "<td>Edad</td>";
-             echo "<td>TALLA</td>";
-            
-            echo "<td>Sexo</td>";
-            echo "<td>Genero</td>";
-            echo "<td>Departamento Afiliado</td>";
-            echo "<td>Municipio Afiliado</td>";
-            echo "<td>Telefono</td>";
-            echo "<td>Fecha Solicitud Cita</td>";
-            echo "<td>Fecha en que el usuario solicita le sea asignada la cita (fecha deseada)</td>";
-            echo "<td>Fecha para la cual se asigna la cita</td>";
-            echo "<td>Cups</td>";
-            echo "<td>Zona</td>";
-            echo "<td>Brigada</td>";
-            echo "<td>Departamento IPS</td>";
-            echo "<td>NIT</td>";
-            echo "<td>Codigo Habilitacion</td>";
-            echo "<td>Razon Social de Institución prestadora de servicios</td>";
-            echo "<td>Servicio Solicitado</td>";
-            echo "<td>Regimen</td>";
+        header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+        header("Content-Disposition: attachment; filename=$filename");
+        header("Pragma: no-cache");
+        header("Expires: 0");
         
-            echo "<td>Fecha apertura hc</td>";
-            echo "<td>Fecha cierre hc</td>";
-             
-            echo "<td>Medico</td>";
-            echo "<td>AUX</td>";
-        echo "<td></td>";
-        echo "<td>Tipo Profesional</td>";
-        echo "<td>Codigo Trabajo</td>";
-         
-            echo "</tr>"; 
-            echo "<tbody>";
+        // BOM UTF-8 para Excel
+        echo "\xEF\xBB\xBF";
+    
+        echo "<html><head><meta charset=\"UTF-8\"></head><body>";
+        echo "<table border=\"1\">";
+        
+        if (sizeof($data) > 0) {
+            // Headers solo los 11 campos requeridos
+            echo "<tr>";
+            echo "<td><b>No.</b></td>";
+            echo "<td><b>SEDE</b></td>";
+            echo "<td><b>TIPO DOCUMENTO</b></td>";
+            echo "<td><b>NUMERO DOCUMENTO</b></td>";
+            echo "<td><b>TELÉFONO</b></td>";
+            echo "<td><b>FECHA USUARIO SOLICITA</b></td>";
+            echo "<td><b>FECHA REQUERIDA USUARIO</b></td>";
+            echo "<td><b>FECHA ASIGNACIÓN IPS</b></td>";
+            echo "<td><b>CÓDIGO HABILITACIÓN</b></td>";
+            echo "<td><b>CÓDIGO DE SERVICIO</b></td>";
+            echo "<td><b>CÓDIGO CUPS</b></td>";
+            echo "</tr>";
+            
+            $contador = 1;
             foreach ($data as $d) {
-                list($anio, $mes, $dia) = explode("-", $d->pacFecNacimiento);
-                $anio_dif = date("Y") - $anio;
-                $mes_dif = date("m") - $mes;
-                $dia_dif = date("d") - $dia;
-    
-                if($d->pacSexo == 'M'){
-                    $sexo = 'Hombre';
-                }else{
-                    $sexo = 'Mujer';
-                } 
-    
-                if ($dia_dif < 0 || $mes_dif < 0) {
-                    $anio_dif--;
-                            //return $anio_dif;
-                }
                 echo "<tr>";
-                echo "<td>" . strtoupper($d->pacNombre) . "</td>";
-                echo "<td>" . strtoupper($d->pacNombre2) . "</td>";
-                echo "<td>" . strtoupper($d->pacApellido) . "</td>";
-                echo "<td>" . strtoupper($d->pacApellido2) . "</td>";
+                echo "<td>" . $contador . "</td>";
+                echo "<td>" . $d->briNombre . "</td>";
                 echo "<td>" . $d->nom_abreviacion . "</td>";
                 echo "<td>" . $d->pacDocumento . "</td>";
-                echo "<td>" . $d->pacFecNacimiento . "</td>";
-                 echo "<td>" . $d->pacDireccion . "</td>";
-                echo "<td>" . $anio_dif ."</td>";
-                echo "<td>" . str_replace('.', '', $d->hcTalla) . "</td>";
-    
-                echo "<td>" . $sexo ."</td>";
-                echo "<td>" . $d->pacSexo . "</td>";
-               
-                echo "<td>" . $d->depNombre . "</td>";
-                echo "<td>" . $d->munNombre . "</td>";
-                echo "<td>" . $d->pacTelefono . "</td>";  
-                echo "<td>" . $d->citFecha . "</td>";     
-                echo "<td>" . $d->citFechaDeseada . "</td>";  
+                echo "<td>" . $d->pacTelefono . "</td>";
+                echo "<td>" . $d->citFecha . "</td>";
+                echo "<td>" . $d->citFechaDeseada . "</td>";
                 echo "<td>" . $d->citFechaInicio . "</td>";
-                echo "<td>" . $d->N_cups_ajustado . "</td>";
-                echo "<td>" . $d->zonNombre . "</td>";
-    
-                echo "<td>" . $d->briNombre . "</td>";   
-                echo "<td>Cauca</td>";
-                echo "<td>900817959</td>";  
-                echo "<td>190010882401</td>";
-                echo "<td>Fundacion Nacer Para Vivir IPS</td>";
-                echo "<td>" . $d->proNombre . "</td>";
-                echo "<td>" . $d->regNombre . "</td>";   
-      
-                echo "<td>" . $d->fecha_actual . "</td>";
-                echo "<td>" . $d->fecha_final . "</td>";
-                echo "<td>" . $d->usuNombre . " " . $d->usuApellido . "</td>";   
-                echo "<td>" . $d->idauxiliar . " " . $d->nombreauxiliar . "</td>";
-                echo "<td> " . $d->usu_creo_cita . " " . $d->usuNombre . " </td>";
-                
-                echo "<td>" . $d->tipo_profesional . "</td>";
+                echo "<td>190010882403</td>";
                 echo "<td>" . $d->codigo_trabajo . "</td>";
-                    
+                echo "<td>" . $d->N_cups_ajustado . "</td>";
                 echo "</tr>";
+                $contador++;
             }
-            echo "</tbody>";
         } else {
-            echo "<tr><td>No se encontro ningun procedimiento de facturacion pendiente para este usuario.</td></tr>";
+            echo "<tr><td>No se encontraron registros para el rango de fechas seleccionado.</td></tr>";
         }
     
         echo "</table>";
+        echo "</body></html>";
     
     }     
 
