@@ -37,7 +37,7 @@ class CPaciente extends CI_Controller
 
         $datos["departamento"] = $this->MDepartamento->ver();
         $datos["municipio"] = $this->MMunicipio->ver();
-        $datos["paciente"] = $this->MPaciente->ver();
+        $datos["paciente"] = []; // server-side DataTables: carga vía AJAX
         $datos["zona_residencial"] = $this->MZonaResidencial->ver();
         $datos["regimen"] = $this->MRegimen->ver();
         $datos["empresa"] = $this->MEmpresa->ver();
@@ -83,7 +83,7 @@ class CPaciente extends CI_Controller
 
         $datos["departamento"] = $this->MDepartamento->ver();
         $datos["municipio"] = $this->MMunicipio->ver();
-        $datos["paciente"] = $this->MPaciente->ver();
+        $datos["paciente"] = []; // server-side DataTables: carga vía AJAX
         $datos["zona_residencial"] = $this->MZonaResidencial->ver();
         $datos["regimen"] = $this->MRegimen->ver();
         $datos["empresa"] = $this->MEmpresa->ver();
@@ -367,4 +367,58 @@ class CPaciente extends CI_Controller
 
         redirect(base_url("index.php/CPaciente/index_/eliminado"));
     }
+
+    // ─── Endpoint server-side DataTables ─────────────────────────────────────
+    public function ajax_pacientes()
+    {
+        $draw       = intval($this->input->post('draw'));
+        $start      = intval($this->input->post('start'));
+        $length     = intval($this->input->post('length'));
+        $search     = $this->input->post('search');
+        $order      = $this->input->post('order');
+        $search_val = isset($search['value']) ? trim($search['value']) : '';
+        $order_col  = isset($order[0]['column']) ? intval($order[0]['column']) : 1;
+        $order_dir  = isset($order[0]['dir'])    ? $order[0]['dir'] : 'asc';
+
+        $total    = $this->MPaciente->ver_ajax_total();
+        $filtered = $this->MPaciente->ver_ajax_filtrado($search_val);
+        $rows     = $this->MPaciente->ver_ajax($start, $length, $search_val, $order_col, $order_dir);
+
+        $base     = base_url();
+        $data_arr = [];
+
+        foreach ($rows as $pac) {
+            list($anio, $mes, $dia) = explode('-', $pac->pacFecNacimiento);
+            $edad = (int)date('Y') - (int)$anio;
+            if ((int)date('m') < (int)$mes || ((int)date('m') === (int)$mes && (int)date('d') < (int)$dia)) {
+                $edad--;
+            }
+
+            $btn_actualizar = '<a class="btn btn-primary btn-sm" href="' . $base . 'index.php/CPaciente/modRecuperar/' . $pac->idPaciente . '">Actualizar</a>';
+            $btn_eliminar   = ($pac->pacEstado === 'ACTIVO')
+                ? '<a class="btn btn-danger btn-sm" onclick="eliminar(\'' . $pac->idPaciente . '\')">Eliminar</a>'
+                : '';
+
+            $data_arr[] = [
+                htmlspecialchars($pac->pacDocumento),
+                htmlspecialchars($pac->nombre_completo),
+                htmlspecialchars($pac->pacCorreo),
+                $edad,
+                htmlspecialchars($pac->tipNombre),
+                htmlspecialchars($pac->tipo_novedad),
+                $btn_actualizar,
+                $btn_eliminar,
+            ];
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'draw'            => $draw,
+                'recordsTotal'    => (int)$total,
+                'recordsFiltered' => (int)$filtered,
+                'data'            => $data_arr,
+            ]));
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 }

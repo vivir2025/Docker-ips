@@ -277,60 +277,49 @@
                                 <th>Eliminar</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php
-                                foreach ($paciente as $pac) {
-                                ?>
-
-                                <tr>
-                                    <td><?= $pac->pacDocumento; ?></td>
-                                    <td><?= $pac->pacNombre . " " . $pac->pacNombre2 ." ". $pac->pacApellido ." ". $pac->pacApellido2 ; ?></td>
-                                    <td><?= $pac->pacCorreo; ?></td>
-                                    <td> <?php
-                                            list($anio, $mes, $dia) = explode("-", $pac->pacFecNacimiento);
-                                            $anio_dif = date("Y") - $anio;
-                                            $mes_dif = date("m") - $mes;
-                                            $dia_dif = date("d") - $dia;
-
-                                            if ($dia_dif < 0 || $mes_dif < 0) {
-                                                $anio_dif--;
-                                                //return $anio_dif;
-                                            }
-
-                                            echo $anio_dif;
-
-                                            ?>
-
-                                    </td>
-                                    
-                                    <td>
-                                        <?= $pac->tipNombre; ?>
-                                    </td>
-                                    <td>
-                                        <?= $pac->tipo_novedad; ?>
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-primary" href="<?= base_url("index.php/CPaciente/modRecuperar/$pac->idPaciente") ?>">Actualizar</a>
-                                    </td>
-                                    <td>
-                                        <?php if ($pac->pacEstado == 'ACTIVO') { ?>
-
-                                            <a class="btn btn-danger" onclick="eliminar('<?php echo $pac->idPaciente; ?>')">Eliminar</a>
-
-                                        <?php } ?>
-                                    </td>
-                                </tr>
-                            <?php
-                                }
-                                ?>
-                </div>
+                        <tbody></tbody>
+                        </table>
+                </div><!-- /.table-responsive -->
         </div>
     </div>
 </div>
+
 <script type="text/javascript">
     function eliminar(id) {
         if (confirm('¿Desea eliminar el registro?')) {
             document.location.href = "<?php echo base_url() . 'index.php/CPaciente/eliminar/' ?>" + id;
-            }
+        }
     }
+
+    $(document).ready(function () {
+        if ($.fn.DataTable.isDataTable('#example')) {
+            $('#example').DataTable().destroy();
+        }
+        $('#example').DataTable({
+            serverSide: true,
+            processing: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+                processing: '<span class="spinner-border spinner-border-sm"></span> Cargando...'
+            },
+            ajax: {
+                url: '<?= base_url("index.php/CPaciente/ajax_pacientes") ?>',
+                type: 'POST'
+            },
+            columns: [
+                { title: 'Documento',       data: 0 },
+                { title: 'Nombre',          data: 1 },
+                { title: 'Correo',          data: 2 },
+                { title: 'Edad',            data: 3, orderable: false },
+                { title: 'Tipo Afiliación', data: 4 },
+                { title: 'Estado',          data: 5 },
+                { title: 'Actualizar',      data: 6, orderable: false },
+                { title: 'Eliminar',        data: 7, orderable: false }
+            ],
+            order: [[1, 'asc']],
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            responsive: true
+        });
+    });
 </script>
