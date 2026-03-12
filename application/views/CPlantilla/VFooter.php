@@ -19,8 +19,8 @@
 <script>
    
     $(document).ready(function () {
-        $('#example').DataTable  ({
-            
+        if ($.fn.DataTable.isDataTable('#example')) { return; }
+        $('#example').DataTable({
             'language': {
                 'sProcessing': 'Procesando...',
                 "sLengthMenu": "Mostrar _MENU_ registros",
