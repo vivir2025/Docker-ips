@@ -224,13 +224,13 @@ END AS codigo_trabajo
     return $consulta->result();
   }
 
-  // Método optimizado: IGUAL a exportar_1 pero con filtro Especial Control
+  // Método optimizado: IGUAL a exportar_1 pero con filtro Especial Control + campos clínicos
   public function ver_pac_by_fecha_especial_control($fecha1, $fecha2)
   {
     $consulta = $this->db->query("
       SELECT 
         c.*, pac.*, u.*, esp.espNombre AS tipo_profesional,
-        h.*, tp.*, d.*, m.*, e.*, zr.*, r.*, a.*, b.*, ax.*, p.*, cup.cupNombre,
+        h.*, hcc.*, tp.*, d.*, m.*, e.*, zr.*, r.*, a.*, b.*, ax.*, p.*, cup.cupNombre,
         
       CASE 
   WHEN esp.espNombre LIKE '%Enfermero%' 
@@ -302,6 +302,7 @@ END AS codigo_trabajo
 
       FROM cita AS c
       INNER JOIN hc AS h ON h.cita_idCita = c.idCita
+      LEFT JOIN hc_complementaria AS hcc ON hcc.hc_idHc = h.id_hc
       INNER JOIN paciente AS pac ON c.paciente_idPaciente = pac.idPaciente
       INNER JOIN empresa AS e ON e.idEmpresa = pac.empresa_idEmpresa
       LEFT JOIN brigada AS b ON b.idBrigada = pac.Brigada_idBrigada
