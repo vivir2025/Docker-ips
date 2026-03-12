@@ -67,278 +67,159 @@ class CBackup extends CI_Controller
 
     public function exportar_sql_hc()
     {
-
-        $nombre_archivo = "SQL_HC";
-
+        $nombre_archivo = "HC_Datos";
         $fecha1 = $this->input->post('fecha');
         $fecha2 = $this->input->post('fecha1');
 
+        $max_ids = [
+            'paciente' => (int) $this->input->post('paciente_ids'),
+            'agenda' => (int) $this->input->post('agenda_ids'),
+            'cita' => (int) $this->input->post('cita_ids'),
+            'hc' => (int) $this->input->post('hc_ids'),
+            'hc_complementaria' => (int) $this->input->post('hc_complementaria_ids'),
+            'historia_medicamento' => (int) $this->input->post('hc_medicamento_ids'),
+            'historia_cups' => (int) $this->input->post('hc_cups_ids'),
+            'historia_diagnostico' => (int) $this->input->post('hc_diagnostico_ids'),
+            'historia_remision' => (int) $this->input->post('hc_remision_ids')
+        ];
 
-        $data = $this->MAgenda->ver_agenda_by_fecha($fecha1, $fecha2);
-
+        $data_paciente = $this->MPaciente->ver_paciente_by_fecha($fecha1, $fecha2);
+        $data_agenda = $this->MAgenda->ver_agenda_by_fecha($fecha1, $fecha2);
         $data_cita = $this->MCita->ver_cita_by_fecha($fecha1, $fecha2);
-
         $data_hc = $this->MHistoria->ver_hc_by_fecha($fecha1, $fecha2);
-
         $data_hc_complementaria = $this->MHistoria->ver_hc_complementaria_by_fecha($fecha1, $fecha2);
-
         $data_hc_medicamento = $this->MHistoria->ver_hc_medicamento_by_fecha($fecha1, $fecha2);
-
         $data_hc_cups = $this->MHistoria->ver_hc_cups_by_fecha($fecha1, $fecha2);
-
         $data_hc_diagnostico = $this->MHistoria->ver_hc_diagnostico_by_fecha($fecha1, $fecha2);
-
         $data_hc_remision = $this->MHistoria->ver_hc_remision_by_fecha($fecha1, $fecha2);
 
-
-        $datos_agenda = $this->MAgenda->get_campos_agenda();
-
-        $datos_cita = $this->MCita->get_campos_cita();
-
-        $datos_hc = $this->MHistoria->get_campos_hc();
-
-        $datos_hc_complementaria = $this->MHistoria->get_campos_hc_complementaria();
-
-        $datos_hc_medicamento = $this->MHistoria->get_campos_hc_medicamento();
-
-        $datos_hc_cups = $this->MHistoria->get_campos_hc_cups();
-
-        $datos_hc_diagnostico = $this->MHistoria->get_campos_hc_diagnostico();
-
-        $datos_hc_remision = $this->MHistoria->get_campos_hc_remision();
-
-
-
-        if ($nombre_archivo) {
-
-            header('Content-type: text/plain');
-            header("Content-Disposition: attachment; filename=\"$nombre_archivo.txt\"");
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `agenda`\r\n--\r\n\r\n";
-
-            $datos .=   "INSERT INTO `agenda` (";
-
-            foreach ($datos_agenda as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES ' . "\r\n";
-
-
-            //$datos .= '<br>';
-
-            foreach ($data as $table_row) {
-                $datos .= '(';
-                foreach ($table_row as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n" . "\r\n";
-
-            print $datos;
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `cita`\r\n--\r\n\r\n";
-
-            $datos .=   "INSERT INTO `cita` (";
-
-            foreach ($datos_cita as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES' . "\r\n";
-
-
-            foreach ($data_cita as $table_row_cita) {
-                $datos .= '(';
-                foreach ($table_row_cita as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n" . "\r\n";
-
-            print $datos;
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `hc`\r\n--\r\n\r\n";
-
-            $datos .=   "INSERT INTO `hc` (";
-
-            foreach ($datos_hc as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES' . "\r\n";
-
-
-            foreach ($data_hc as $table_row_hc) {
-                $datos .= '(';
-                foreach ($table_row_hc as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n" . "\r\n";
-
-            print $datos;
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `hc_complementaria`\r\n--\r\n\r\n";
-
-            $datos .=   "INSERT INTO `hc_complementaria` (";
-
-            foreach ($datos_hc_complementaria as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES' . "\r\n";
-
-
-            foreach ($data_hc_complementaria as $table_row_hc_complementaria) {
-                $datos .= '(';
-                foreach ($table_row_hc_complementaria as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n" . "\r\n";
-
-            print $datos;
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `historia_medicamento`\r\n--\r\n\r\n";
-
-
-            $datos .=   "INSERT INTO `historia_medicamento` (";
-
-            foreach ($datos_hc_medicamento as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES' . "\r\n";
-
-
-            foreach ($data_hc_medicamento as $table_row_hc_medicamento) {
-                $datos .= '(';
-                foreach ($table_row_hc_medicamento as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n" . "\r\n";
-
-            print $datos;
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `historia_cups`\r\n--\r\n\r\n";
-
-
-            $datos .=   "INSERT INTO `historia_cups` (";
-
-            foreach ($datos_hc_cups as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES' . "\r\n";
-
-
-            foreach ($data_hc_cups as $table_row_hc_cups) {
-                $datos .= '(';
-                foreach ($table_row_hc_cups as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n" . "\r\n";
-
-            print $datos;
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `historia_diagnostico`\r\n--\r\n\r\n";
-
-
-            $datos .=   "INSERT INTO `historia_diagnostico` (";
-
-            foreach ($datos_hc_diagnostico as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES' . "\r\n";
-
-
-            foreach ($data_hc_diagnostico as $table_row_hc_diagnostico) {
-                $datos .= '(';
-                foreach ($table_row_hc_diagnostico as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n" . "\r\n";
-
-            print $datos;
-
-            $datos = "--\r\n-- Volcado de datos para la tabla `historia_remision`\r\n--\r\n\r\n";
-
-
-
-            $datos .=   "INSERT INTO `historia_remision` (";
-
-            foreach ($datos_hc_remision as $f) {
-                $datos .=   "`" . $f . "`,";
-            }
-
-            $datos = substr($datos, 0, -1);
-            $datos .= ')';
-
-            $datos .= ' VALUES' . "\r\n";
-
-
-            foreach ($data_hc_remision as $table_row_hc_remision) {
-                $datos .= '(';
-                foreach ($table_row_hc_remision as $column => $value) {
-                    $datos .= "'" . addslashes($value) . "',";
-                }
-                $datos = substr($datos, 0, -1);
-                $datos .= '),';
-            }
-
-            $datos = substr($datos, 0, -1) . '; ' . "\r\n";
-
-            print $datos;
-        } else {
-
-            $datos = "NO HAY DATOS PARA MOSTRAR";
-            print $datos;
+        if (
+            empty($data_paciente) && empty($data_agenda) && empty($data_cita) &&
+            empty($data_hc) && empty($data_hc_complementaria) && empty($data_hc_medicamento) &&
+            empty($data_hc_cups) && empty($data_hc_diagnostico) && empty($data_hc_remision)
+        ) {
+            print "NO HAY DATOS PARA MOSTRAR";
+            return;
         }
+
+        $datos_tablas = [
+            'paciente' => $this->MPaciente->get_field(),
+            'agenda' => $this->MAgenda->get_campos_agenda(),
+            'cita' => $this->MCita->get_campos_cita(),
+            'hc' => $this->MHistoria->get_campos_hc(),
+            'hc_complementaria' => $this->MHistoria->get_campos_hc_complementaria(),
+            'historia_medicamento' => $this->MHistoria->get_campos_hc_medicamento(),
+            'historia_cups' => $this->MHistoria->get_campos_hc_cups(),
+            'historia_diagnostico' => $this->MHistoria->get_campos_hc_diagnostico(),
+            'historia_remision' => $this->MHistoria->get_campos_hc_remision()
+        ];
+
+        $mapa_ids = [];
+
+        $primary_key_fields = [
+            'paciente' => 'idPaciente',
+            'agenda' => 'idAgenda',
+            'cita' => 'idCita',
+            'hc' => 'id_hc',
+            'hc_complementaria' => 'id_hc_complementaria',
+            'historia_medicamento' => 'id_his_med',
+            'historia_cups' => 'id_his_cups',
+            'historia_diagnostico' => 'id_his_dia',
+            'historia_remision' => 'id_his_rem'
+        ];
+
+        $foreign_key_mappings = [
+            'paciente_idPaciente' => 'paciente',
+            'agenda_idAgenda' => 'agenda',
+            'cita_idCita' => 'cita',
+            'hc_idHc' => 'hc',
+            'historia_idHistoria' => 'hc'
+        ];
+
+        $tablas_ordenadas = [
+            'paciente' => $data_paciente,
+            'agenda' => $data_agenda,
+            'cita' => $data_cita,
+            'hc' => $data_hc,
+            'hc_complementaria' => $data_hc_complementaria,
+            'historia_diagnostico' => $data_hc_diagnostico,
+            'historia_cups' => $data_hc_cups,
+            'historia_medicamento' => $data_hc_medicamento,
+            'historia_remision' => $data_hc_remision
+        ];
+
+        $hc_campos_nullables = $this->MHistoria->get_campos_nullables_hc();
+
+        ob_start();
+
+        foreach ($tablas_ordenadas as $tabla => $data) {
+            if (empty($data)) {
+                continue;
+            }
+
+            $datos_tabla = $datos_tablas[$tabla];
+            $id_column = $primary_key_fields[$tabla];
+
+            echo "--\r\n-- Volcado de datos para la tabla `$tabla`\r\n--\r\n\r\n";
+            echo "INSERT INTO `$tabla` (" . implode(",", array_map(function ($field) {
+                return "`$field`";
+            }, $datos_tabla)) . ") VALUES\r\n";
+
+            $valores_insert = [];
+
+            foreach ($data as $row) {
+                $row_sql = [];
+                $id_original = $row->$id_column;
+
+                if (!isset($mapa_ids[$tabla][$id_original])) {
+                    $max_ids[$tabla]++;
+                    $mapa_ids[$tabla][$id_original] = $max_ids[$tabla];
+                }
+
+                foreach ($datos_tabla as $column) {
+                    $value = isset($row->$column) ? $row->$column : null;
+
+                    if ($column === $id_column) {
+                        $row_sql[] = "'" . $mapa_ids[$tabla][$id_original] . "'";
+                        continue;
+                    }
+
+                    if (isset($foreign_key_mappings[$column])) {
+                        $tabla_relacionada = $foreign_key_mappings[$column];
+
+                        if ($tabla === 'cita' && $column === 'paciente_idPaciente') {
+                            $row_sql[] = $value !== null && isset($mapa_ids['paciente'][$value])
+                                ? "'" . $mapa_ids['paciente'][$value] . "'"
+                                : ($value !== null ? "'" . addslashes($value) . "'" : "NULL");
+                        } else {
+                            $row_sql[] = ($value !== null && isset($mapa_ids[$tabla_relacionada][$value]))
+                                ? "'" . $mapa_ids[$tabla_relacionada][$value] . "'"
+                                : "NULL";
+                        }
+
+                        continue;
+                    }
+
+                    if ($tabla === 'hc' && in_array($column, $hc_campos_nullables, true)) {
+                        $row_sql[] = ($value === '' || $value === null) ? "NULL" : "'" . addslashes($value) . "'";
+                        continue;
+                    }
+
+                    $row_sql[] = $value !== null ? "'" . addslashes($value) . "'" : "''";
+                }
+
+                $valores_insert[] = "(" . implode(",", $row_sql) . ")";
+            }
+
+            if (!empty($valores_insert)) {
+                echo implode(",\r\n", $valores_insert) . ";\r\n\r\n";
+            }
+        }
+
+        $datos = ob_get_clean();
+        header('Content-type: text/plain');
+        header("Content-Disposition: attachment; filename=\"$nombre_archivo.txt\"");
+        print $datos;
     }
 
     public function exportar_sql_paciente()

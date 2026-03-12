@@ -149,7 +149,7 @@ if (!$this->session->userdata('login')) {
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a  id=miBoton class="dropdown-item" href="<?= site_url('CHistorial') ?>">Historia</a>
-                        <a  id=miBoton class="dropdown-item" href="<?= site_url('CHistoria/visitas') ?>">Visitas Domiciliarias</a>
+                        <a  id=miBoton class="dropdown-item" href="https://app-fnpv-web.nacerparavivir.org/login" target="_blank">Visitas Domiciliarias</a>
                         <a  id=miBoton class="dropdown-item" href="<?= site_url('CHistoria/desentimiento') ?>">Disentimientos</a>
                         <a  id=miBoton class="dropdown-item" href="http://temporal.nacerparavivir.org/" target="_blank">Historia Antigua</a>
                      </div>

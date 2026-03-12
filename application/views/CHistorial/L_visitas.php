@@ -2,7 +2,9 @@
 <div class="container">
 
     <hr>
-    <h5 style="color: white;">CONSULTAS Y/O HISTORIAL VISITAS DOMICILIARIAS POR DOCUMENTO PACIENTE</h5>
+    <h5 style="color: white;">
+        <a href="https://app-fnpv-web.nacerparavivir.org/login" target="_blank" rel="noopener" style="color: white; text-decoration: none;">CONSULTAS Y/O HISTORIAL VISITAS DOMICILIARIAS POR DOCUMENTO PACIENTE</a>
+    </h5>
     <hr>
     <div class="form-row">
         <label class="col-sm-2 col-form-label text-white">Documento:</label>

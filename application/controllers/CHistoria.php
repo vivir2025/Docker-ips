@@ -68,29 +68,21 @@ class CHistoria extends CI_Controller
     }
     public function desentimiento()
     {
-    
         $data['title'] = 'HISTORIAL DESENTIMIENTO';
-    
+
         $this->load->view("CPlantilla/VHead", $data);
-    
         $this->load->view("CPlantilla/VBarraMenu");
-    
         $this->load->view("CHistorial/L_vdesentimiento.php");
-    
         $this->load->view("CPlantilla/VFooter");
     }
 
     public function visitas()
     {
-    
-        $data['title'] = 'HISTORIAL DE VSITAS';
-    
+        $data['title'] = 'HISTORIAL DE VISITAS';
+
         $this->load->view("CPlantilla/VHead", $data);
-    
         $this->load->view("CPlantilla/VBarraMenu");
-    
         $this->load->view("CHistorial/L_visitas.php");
-    
         $this->load->view("CPlantilla/VFooter");
     }
 

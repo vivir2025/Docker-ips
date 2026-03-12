@@ -937,6 +937,20 @@ class MHistoria extends CI_Model
     return $consulta->result();
   }
 
+  public function get_campos_nullables_hc()
+  {
+    $consulta = $this->db->query("SHOW COLUMNS FROM hc");
+    $campos = array();
+
+    foreach ($consulta->result() as $column) {
+      if (isset($column->Null) && $column->Null === 'YES') {
+        $campos[] = $column->Field;
+      }
+    }
+
+    return $campos;
+  }
+
   public function get_paraclinico()
   {
     $consulta = $this->db->query("

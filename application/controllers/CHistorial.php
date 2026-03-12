@@ -153,9 +153,9 @@ class CHistorial extends CI_Controller
             echo "</button>";
             
             // Botón Visitas Domiciliarias
-            echo "<button class='btn-action btn-ayuda' title='Visitas Domiciliarias' onclick='verVisitas($d->pacDocumento)'>";
-            echo "<img src='" . base_url('assets/img/visitas.png') . "'>";
-            echo "</button>";
+            echo "<a href='https://app-fnpv-web.nacerparavivir.org/login' target='_blank' class='btn-action btn-ayuda' title='Visitas Domiciliarias' style='display: inline-flex; align-items: center; justify-content: center; text-decoration: none;'>";
+            echo "    <img src='" . base_url('assets/img/visitas.png') . "'>";
+            echo "</a>";
             
             echo "</div>";
             echo "</td>";
