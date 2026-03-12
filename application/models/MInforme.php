@@ -11,7 +11,7 @@ class MInforme extends CI_Model
     $this->load->database();
   }
 
-  // Método 1: consulta por fecha - SOLO ESPECIAL CONTROL (exportar)
+  // Método 1: consulta por fecha - SIN FILTROS para exportar_1 (1525)
   public function ver_pac_by_fecha($fecha1, $fecha2)
   {
     $consulta = $this->db->query("
@@ -111,8 +111,6 @@ END AS codigo_trabajo
       INNER JOIN usuario AS u2 ON u2.idUsuario = c.usu_creo_cita
       LEFT JOIN especialidad AS esp ON esp.idEspecialidad = u2.especialidad_idEspecialidad
       WHERE c.citFecha BETWEEN '" . $fecha1 . "' AND '" . $fecha2 . "'
-        AND p.proNombre = 'ESPECIAL CONTROL'
-        AND c.citEstado IN ('FINALIZADO', 'FINALIZADO Y FACTURADO')
     ");
 
     return $consulta->result();
