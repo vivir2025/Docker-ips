@@ -26,10 +26,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // Detectar automáticamente si estamos en Docker o local
 if (getenv('DB_HOST') === 'db') {
     // Entorno Docker
-    $config['base_url'] = 'http://192.168.10.129/cajibio/';
+    $config['base_url'] = 'http://192.168.18.90/cajibio/';
 } else {
     // Entorno local con XAMPP
-    $config['base_url'] = 'http://192.168.10.129/cajibio/';
+    $config['base_url'] = 'http://192.168.18.90/cajibio/';
 }
 
 /*

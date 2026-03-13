@@ -47,7 +47,7 @@ COPY docker/apache/ips.conf /etc/apache2/conf-available/ips.conf
 RUN a2enconf ips
 
 # Copiar script de entrypoint personalizado
-COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Establecer el directorio de trabajo
